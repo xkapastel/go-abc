@@ -26,12 +26,44 @@ import (
 	"os"
 )
 
+func usage() {
+	fmt.Println("abc (box | print | reduce)")
+	os.Exit(1)
+}
+
 func main() {
-	stdin := bufio.NewReader(os.Stdin)
-	lhs, err := abc.Decode(stdin)
-	if err != nil {
-		panic(err)
+	if len(os.Args) != 2 {
+		usage()
 	}
-	rhs := lhs.Reduce(1000)
-	fmt.Println(rhs)
+	switch os.Args[1] {
+	case "box":
+		stdin := bufio.NewReader(os.Stdin)
+		lhs, err := abc.Decode(stdin)
+		if err != nil {
+			panic(err)
+		}
+		rhs := lhs.Box()
+		stdout := bufio.NewWriter(os.Stdout)
+		rhs.Encode(stdout)
+		stdout.Flush()
+	case "reduce":
+		stdin := bufio.NewReader(os.Stdin)
+		lhs, err := abc.Decode(stdin)
+		if err != nil {
+			panic(err)
+		}
+		rhs := lhs.Reduce(1000)
+		stdout := bufio.NewWriter(os.Stdout)
+		rhs.Encode(stdout)
+		stdout.Flush()
+	case "print":
+		stdin := bufio.NewReader(os.Stdin)
+		tau, err := abc.Decode(stdin)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(tau)
+	default:
+		usage()
+	}
 }

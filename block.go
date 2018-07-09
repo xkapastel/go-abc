@@ -17,31 +17,49 @@ License along with this program.  If not, see
 <https://www.gnu.org/licenses/>.
 **/
 
-package main
+package abc
 
 import (
-	"bufio"
 	"fmt"
 	"io"
-	"os"
 )
 
 const (
-	ByteBegin byte = iota
-	ByteApp
-	ByteBox
-	ByteCat
-	ByteCopy
-	ByteDrop
-	ByteSwap
-	ByteEnd
-	ByteHash
+	byteBegin byte = iota
+	byteApp
+	byteBox
+	byteCat
+	byteCopy
+	byteDrop
+	byteSwap
+	byteEnd
+	byteHash
 )
 
 type Block interface {
+	Box() Block
+	Catenate(...Block) Block
 	Reduce(int) Block
 	Encode(io.ByteWriter) error
 	String() string
+}
+
+var Id Block
+var Apply Block
+var Box Block
+var Catenate Block
+var Copy Block
+var Drop Block
+var Swap Block
+
+func init() {
+	Id = opId{}
+	Apply = opApp{}
+	Box = opBox{}
+	Catenate = opCat{}
+	Copy = opCopy{}
+	Drop = opDrop{}
+	Swap = opSwap{}
 }
 
 func Decode(src io.ByteReader) (Block, error) {
@@ -59,10 +77,10 @@ func Decode(src io.ByteReader) (Block, error) {
 			return nil, err
 		}
 		switch byte {
-		case ByteBegin:
+		case byteBegin:
 			stack = append(stack, build)
 			build = nil
-		case ByteEnd:
+		case byteEnd:
 			if len(stack) == 0 {
 				return nil, fmt.Errorf("Unbalanced block")
 			}
@@ -71,17 +89,17 @@ func Decode(src io.ByteReader) (Block, error) {
 			build = stack[len(stack)-1]
 			build = append(build, wrap)
 			stack = stack[:len(stack)-1]
-		case ByteApp:
+		case byteApp:
 			build = append(build, opApp{})
-		case ByteBox:
+		case byteBox:
 			build = append(build, opBox{})
-		case ByteCat:
+		case byteCat:
 			build = append(build, opCat{})
-		case ByteCopy:
+		case byteCopy:
 			build = append(build, opCopy{})
-		case ByteDrop:
+		case byteDrop:
 			build = append(build, opDrop{})
-		case ByteSwap:
+		case byteSwap:
 			build = append(build, opSwap{})
 		default:
 			panic("Unknown bytecode")
@@ -108,61 +126,106 @@ type opSwap struct{}
 type box struct{ body Block }
 type cat struct{ fst, snd Block }
 
+func (tau opId) Box() Block { return &box{tau} }
+func (tau opId) Catenate(xs ...Block) Block {
+	rest := newCat(xs...)
+	return &cat{tau, rest}
+}
 func (tau opId) Reduce(quota int) Block         { return tau }
 func (tau opId) Encode(dst io.ByteWriter) error { return nil }
 func (tau opId) String() string                 { return "" }
 
+func (tau opApp) Box() Block { return &box{tau} }
+func (tau opApp) Catenate(xs ...Block) Block {
+	rest := newCat(xs...)
+	return &cat{tau, rest}
+}
 func (tau opApp) Reduce(quota int) Block { return tau }
 func (tau opApp) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(ByteApp)
+	return dst.WriteByte(byteApp)
 }
 func (tau opApp) String() string { return "a" }
 
+func (tau opBox) Box() Block { return &box{tau} }
+func (tau opBox) Catenate(xs ...Block) Block {
+	rest := newCat(xs...)
+	return &cat{tau, rest}
+}
 func (tau opBox) Reduce(quota int) Block { return tau }
 func (tau opBox) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(ByteBox)
+	return dst.WriteByte(byteBox)
 }
 func (tau opBox) String() string { return "b" }
 
+func (tau opCat) Box() Block { return &box{tau} }
+func (tau opCat) Catenate(xs ...Block) Block {
+	rest := newCat(xs...)
+	return &cat{tau, rest}
+}
 func (tau opCat) Reduce(quota int) Block { return tau }
 func (tau opCat) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(ByteCat)
+	return dst.WriteByte(byteCat)
 }
 func (tau opCat) String() string { return "c" }
 
+func (tau opCopy) Box() Block { return &box{tau} }
+func (tau opCopy) Catenate(xs ...Block) Block {
+	rest := newCat(xs...)
+	return &cat{tau, rest}
+}
 func (tau opCopy) Reduce(quota int) Block { return tau }
 func (tau opCopy) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(ByteCopy)
+	return dst.WriteByte(byteCopy)
 }
 func (tau opCopy) String() string { return "d" }
 
+func (tau opDrop) Box() Block { return &box{tau} }
+func (tau opDrop) Catenate(xs ...Block) Block {
+	rest := newCat(xs...)
+	return &cat{tau, rest}
+}
 func (tau opDrop) Reduce(quota int) Block { return tau }
 func (tau opDrop) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(ByteDrop)
+	return dst.WriteByte(byteDrop)
 }
 func (tau opDrop) String() string { return "e" }
 
+func (tau opSwap) Box() Block { return &box{tau} }
+func (tau opSwap) Catenate(xs ...Block) Block {
+	rest := newCat(xs...)
+	return &cat{tau, rest}
+}
 func (tau opSwap) Reduce(quota int) Block { return tau }
 func (tau opSwap) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(ByteSwap)
+	return dst.WriteByte(byteSwap)
 }
 func (tau opSwap) String() string { return "f" }
 
+func (tau *box) Box() Block { return &box{tau} }
+func (tau *box) Catenate(xs ...Block) Block {
+	rest := newCat(xs...)
+	return &cat{tau, rest}
+}
 func (tau *box) Reduce(quota int) Block { return tau }
 func (tau *box) Encode(dst io.ByteWriter) error {
-	if err := dst.WriteByte(ByteBegin); err != nil {
+	if err := dst.WriteByte(byteBegin); err != nil {
 		return err
 	}
 	if err := tau.body.Encode(dst); err != nil {
 		return err
 	}
-	return dst.WriteByte(ByteEnd)
+	return dst.WriteByte(byteEnd)
 }
 func (tau *box) String() string {
 	body := tau.body.String()
 	return fmt.Sprintf("[%s]", body)
 }
 
+func (tau *cat) Box() Block { return &box{tau} }
+func (tau *cat) Catenate(xs ...Block) Block {
+	rest := newCat(xs...)
+	return &cat{tau, rest}
+}
 func (tau *cat) Reduce(quota int) Block {
 	var trash []Block
 	var stack []Block
@@ -286,14 +349,4 @@ func (tau *cat) String() string {
 	fst := tau.fst.String()
 	snd := tau.snd.String()
 	return fmt.Sprintf("%s %s", fst, snd)
-}
-
-func main() {
-	stdin := bufio.NewReader(os.Stdin)
-	lhs, err := Decode(stdin)
-	if err != nil {
-		panic(err)
-	}
-	rhs := lhs.Reduce(1000)
-	fmt.Println(rhs)
 }

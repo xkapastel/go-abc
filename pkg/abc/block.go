@@ -20,9 +20,76 @@ License along with this program.  If not, see
 package abc
 
 import (
+	"encoding/hex"
 	"fmt"
 	"io"
 )
+
+// A block is executable code. ABC is a universal combinator
+// calculus, with six primitives:
+//
+//         [A] app  = A
+//         [A] box  = [[A]]
+//     [A] [B] cat  = [A B]
+//         [A] copy = [A] [A]
+//         [A] drop =
+//     [A] [B] swap = [B] [A]
+//
+// Additionally, code is hyperlinked with a content-based addressing
+// scheme. A block may refer to another block by its SHA-256 hash.
+// This allows compression and an easy opportunity for acceleration.
+type Block interface {
+	// Box wraps a block in another pair of brackets.
+	Box() Block
+	// Catenate composes many blocks left to right.
+	Catenate(...Block) Block
+	// Reduce rewrites a block until it either reaches a normal
+	// form or the effort quota is exhausted.
+	Reduce(int) Block
+	// Encode writes a block's bytecode to a bytestream.
+	Encode(io.ByteWriter) error
+	// String is a human-readable notation for blocks.
+	String() string
+}
+
+// Id is the identity and does nothing. It's represented by
+// whitespace in the notation used throughout this documentation.
+//     [A] = [A]
+var Id Block
+
+// Apply executes a block of code.
+//     [A] app = A
+var Apply Block
+
+// Box quotes a block of code.
+//     [A] box = [[A]]
+var Box Block
+
+// Catenate composes two blocks of code.
+//     [A] [B] cat = [A B]
+var Catenate Block
+
+// Copy duplicates a block of code.
+//     [A] copy = [A] [A]
+var Copy Block
+
+// Drop erases a block of code.
+//     [A] drop =
+var Drop Block
+
+// Swap exchanges two blocks of code.
+//     [A] [B] swap = [B] [A]
+var Swap Block
+
+func init() {
+	Id = opId{}
+	Apply = opApp{}
+	Box = opBox{}
+	Catenate = opCat{}
+	Copy = opCopy{}
+	Drop = opDrop{}
+	Swap = opSwap{}
+}
 
 const (
 	byteBegin byte = iota
@@ -36,37 +103,12 @@ const (
 	byteHash
 )
 
-type Block interface {
-	Box() Block
-	Catenate(...Block) Block
-	Reduce(int) Block
-	Encode(io.ByteWriter) error
-	String() string
-}
-
-var Id Block
-var Apply Block
-var Box Block
-var Catenate Block
-var Copy Block
-var Drop Block
-var Swap Block
-
-func init() {
-	Id = opId{}
-	Apply = opApp{}
-	Box = opBox{}
-	Catenate = opCat{}
-	Copy = opCopy{}
-	Drop = opDrop{}
-	Swap = opSwap{}
-}
-
-func Decode(src io.ByteReader) (Block, error) {
+// DecodeBlock creates a block from a stream of bytecode.
+func DecodeBlock(src io.ByteReader) (Block, error) {
 	var build []Block
 	var stack [][]Block
 	for {
-		byte, err := src.ReadByte()
+		code, err := src.ReadByte()
 		switch {
 		case err == io.EOF:
 			if len(stack) != 0 {
@@ -76,7 +118,7 @@ func Decode(src io.ByteReader) (Block, error) {
 		case err != nil:
 			return nil, err
 		}
-		switch byte {
+		switch code {
 		case byteBegin:
 			stack = append(stack, build)
 			build = nil
@@ -101,6 +143,17 @@ func Decode(src io.ByteReader) (Block, error) {
 			build = append(build, opDrop{})
 		case byteSwap:
 			build = append(build, opSwap{})
+		case byteHash:
+			var name []byte
+			for i := 0; i < 32; i++ {
+				code, err := src.ReadByte()
+				if err != nil {
+					return nil, err
+				}
+				name = append(name, code)
+			}
+			link := link{name}
+			build = append(build, link)
 		default:
 			panic("Unknown bytecode")
 		}
@@ -116,6 +169,14 @@ func newCat(xs ...Block) Block {
 	return block
 }
 
+func newCatFlip(xs ...Block) Block {
+	var block Block = opId{}
+	for _, child := range xs {
+		block = &cat{child, block}
+	}
+	return block
+}
+
 type opId struct{}
 type opApp struct{}
 type opBox struct{}
@@ -125,6 +186,7 @@ type opDrop struct{}
 type opSwap struct{}
 type box struct{ body Block }
 type cat struct{ fst, snd Block }
+type link struct{ name []byte }
 
 func (tau opId) Box() Block { return &box{tau} }
 func (tau opId) Catenate(xs ...Block) Block {
@@ -144,7 +206,7 @@ func (tau opApp) Reduce(quota int) Block { return tau }
 func (tau opApp) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(byteApp)
 }
-func (tau opApp) String() string { return "a" }
+func (tau opApp) String() string { return "app" }
 
 func (tau opBox) Box() Block { return &box{tau} }
 func (tau opBox) Catenate(xs ...Block) Block {
@@ -155,7 +217,7 @@ func (tau opBox) Reduce(quota int) Block { return tau }
 func (tau opBox) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(byteBox)
 }
-func (tau opBox) String() string { return "b" }
+func (tau opBox) String() string { return "box" }
 
 func (tau opCat) Box() Block { return &box{tau} }
 func (tau opCat) Catenate(xs ...Block) Block {
@@ -166,7 +228,7 @@ func (tau opCat) Reduce(quota int) Block { return tau }
 func (tau opCat) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(byteCat)
 }
-func (tau opCat) String() string { return "c" }
+func (tau opCat) String() string { return "cat" }
 
 func (tau opCopy) Box() Block { return &box{tau} }
 func (tau opCopy) Catenate(xs ...Block) Block {
@@ -177,7 +239,7 @@ func (tau opCopy) Reduce(quota int) Block { return tau }
 func (tau opCopy) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(byteCopy)
 }
-func (tau opCopy) String() string { return "d" }
+func (tau opCopy) String() string { return "copy" }
 
 func (tau opDrop) Box() Block { return &box{tau} }
 func (tau opDrop) Catenate(xs ...Block) Block {
@@ -188,7 +250,7 @@ func (tau opDrop) Reduce(quota int) Block { return tau }
 func (tau opDrop) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(byteDrop)
 }
-func (tau opDrop) String() string { return "e" }
+func (tau opDrop) String() string { return "drop" }
 
 func (tau opSwap) Box() Block { return &box{tau} }
 func (tau opSwap) Catenate(xs ...Block) Block {
@@ -199,7 +261,7 @@ func (tau opSwap) Reduce(quota int) Block { return tau }
 func (tau opSwap) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(byteSwap)
 }
-func (tau opSwap) String() string { return "f" }
+func (tau opSwap) String() string { return "swap" }
 
 func (tau *box) Box() Block { return &box{tau} }
 func (tau *box) Catenate(xs ...Block) Block {
@@ -325,7 +387,7 @@ func (tau *cat) Reduce(quota int) Block {
 			panic("unknown block")
 		}
 	}
-	qq := newCat(queue...)
+	qq := newCatFlip(queue...)
 	ss := newCat(stack...)
 	tt := newCat(trash...)
 	return newCat(tt, ss, qq)
@@ -350,3 +412,31 @@ func (tau *cat) String() string {
 	snd := tau.snd.String()
 	return fmt.Sprintf("%s %s", fst, snd)
 }
+
+func (tau link) Box() Block { return &box{tau} }
+func (tau link) Catenate(xs ...Block) Block {
+	rest := newCat(xs...)
+	return &cat{tau, rest}
+}
+func (tau link) Reduce(quota int) Block { return tau }
+func (tau link) Encode(dst io.ByteWriter) error {
+	for _, value := range tau.name {
+		if err := dst.WriteByte(value); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+func (tau link) String() string {
+	name := hex.EncodeToString(tau.name)
+	return fmt.Sprintf("#%s", name)
+}
+
+// Yes, there is a lot of repetition in this file.
+// I like the Block API, the way you can just decode
+// a block from a bytestream and call methods on it
+// to transform it. Go makes methods a little unwieldy
+// since you can't group common code in a superclass;
+// I could eliminate all this repetition by defining
+// those repetitive methods on `Block` and maybe
+// overriding them in `*cat` for example.

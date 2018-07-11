@@ -22,7 +22,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/xkapastel/abc"
+	"github.com/xkapastel/abc/pkg/abc"
 	"os"
 )
 
@@ -38,7 +38,7 @@ func main() {
 	switch os.Args[1] {
 	case "box":
 		stdin := bufio.NewReader(os.Stdin)
-		lhs, err := abc.Decode(stdin)
+		lhs, err := abc.DecodeBlock(stdin)
 		if err != nil {
 			panic(err)
 		}
@@ -48,7 +48,7 @@ func main() {
 		stdout.Flush()
 	case "reduce":
 		stdin := bufio.NewReader(os.Stdin)
-		lhs, err := abc.Decode(stdin)
+		lhs, err := abc.DecodeBlock(stdin)
 		if err != nil {
 			panic(err)
 		}
@@ -58,7 +58,7 @@ func main() {
 		stdout.Flush()
 	case "print":
 		stdin := bufio.NewReader(os.Stdin)
-		tau, err := abc.Decode(stdin)
+		tau, err := abc.DecodeBlock(stdin)
 		if err != nil {
 			panic(err)
 		}

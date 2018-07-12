@@ -111,9 +111,7 @@ func DecodeBlock(src io.ByteReader) (Block, error) {
 		code, err := src.ReadByte()
 		switch {
 		case err == io.EOF:
-			if len(stack) != 0 {
-				return nil, fmt.Errorf("Unbalanced block")
-			}
+			// len(stack) > 0 not an error, just let it go.
 			return newCat(build...), nil
 		case err != nil:
 			return nil, err
@@ -124,7 +122,8 @@ func DecodeBlock(src io.ByteReader) (Block, error) {
 			build = nil
 		case byteEnd:
 			if len(stack) == 0 {
-				return nil, fmt.Errorf("Unbalanced block")
+				// Not an error, just let it go.
+				continue
 			}
 			body := newCat(build...)
 			wrap := &box{body}
@@ -155,7 +154,7 @@ func DecodeBlock(src io.ByteReader) (Block, error) {
 			link := link{name}
 			build = append(build, link)
 		default:
-			panic("Unknown bytecode")
+			// Not an error, just let it go.
 		}
 	}
 }

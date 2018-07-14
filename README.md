@@ -7,12 +7,14 @@ learning research.
 - [Installation](#installation)
 - [Hypermedia](#hypermedia)
 - [Rewriting](#rewriting)
+- [Analysis](#analysis)
 - [Synthesis](#synthesis)
 - [Examples](#examples)
 - [FAQ](#faq)
 
 ## Installation
-`go install -u -v github.com/xkapastel/abc/cmd/abc` will install the `abc` command.
+`go install -u -v github.com/xkapastel/abc/cmd/abc` will install the
+`abc` command.
 
 The `abc` command provides many tools for analyzing and synthesizing
 ABC bytecode.
@@ -33,6 +35,8 @@ standard input, and writes it as a bytecode link to standard output.
 ABC bytecode is hyperlinked, based on a content-addressing scheme.
 
 ## Rewriting
+
+## Analysis
 
 ## Synthesis
 A `Set` is an iteratively defined collection of `Block`s. The blocks
@@ -62,3 +66,11 @@ $ cat app > case
 ```
 
 ## FAQ
+### Why is ABC unityped?
+Machine learning presents a unique opportunity for static analysis of
+programs that are intractable with traditional methods. Type
+information is certainly important for pruning the search space of
+programs, but it seems premature to declare programs that cannot be
+typed with brittle human logical analysis to be illegal right off the
+bat. A unityped core with means of restricting programs to subsets of
+the space of all possible programs seems like the right approach.

@@ -26,7 +26,7 @@ import (
 type opBox struct{}
 
 func (tau opBox) Box() Block { return &mkBox{tau} }
-func (tau opBox) Catenate(xs ...Block) Block {
+func (tau opBox) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
 	return newCat(tau, rest)
 }
@@ -35,7 +35,7 @@ func (tau opBox) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(byteBox)
 }
 func (tau opBox) String() string { return "box" }
-func (lhs opBox) Equals(rhs Block) bool {
+func (lhs opBox) Eq(rhs Block) bool {
 	switch rhs.(type) {
 	case opBox:
 		return true

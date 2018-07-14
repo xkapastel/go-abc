@@ -26,7 +26,7 @@ import (
 type opDrop struct{}
 
 func (tau opDrop) Box() Block { return &mkBox{tau} }
-func (tau opDrop) Catenate(xs ...Block) Block {
+func (tau opDrop) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
 	return newCatN(tau, rest)
 }
@@ -35,7 +35,7 @@ func (tau opDrop) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(byteDrop)
 }
 func (tau opDrop) String() string { return "drop" }
-func (lhs opDrop) Equals(rhs Block) bool {
+func (lhs opDrop) Eq(rhs Block) bool {
 	switch rhs.(type) {
 	case opDrop:
 		return true

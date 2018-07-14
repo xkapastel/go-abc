@@ -28,7 +28,7 @@ import (
 type opLink struct{ name []byte }
 
 func (tau opLink) Box() Block { return &mkBox{tau} }
-func (tau opLink) Catenate(xs ...Block) Block {
+func (tau opLink) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
 	return newCat(tau, rest)
 }
@@ -45,7 +45,7 @@ func (tau opLink) String() string {
 	name := hex.EncodeToString(tau.name)
 	return fmt.Sprintf("#%s", name)
 }
-func (lhs opLink) Equals(rhs Block) bool {
+func (lhs opLink) Eq(rhs Block) bool {
 	switch rhs := rhs.(type) {
 	case opLink:
 		for i := 0; i < 32; i++ {

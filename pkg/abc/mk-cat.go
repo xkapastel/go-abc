@@ -60,7 +60,7 @@ func newCatNFlip(xs ...Block) Block {
 	return block
 }
 func (tau *mkCat) Box() Block { return &mkBox{tau} }
-func (tau *mkCat) Catenate(xs ...Block) Block {
+func (tau *mkCat) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
 	return newCat(tau, rest)
 }
@@ -188,11 +188,11 @@ func (tau *mkCat) String() string {
 	snd := tau.snd.String()
 	return fmt.Sprintf("%s %s", fst, snd)
 }
-func (lhs *mkCat) Equals(rhs Block) bool {
+func (lhs *mkCat) Eq(rhs Block) bool {
 	switch rhs := rhs.(type) {
 	case *mkCat:
-		if lhs.fst.Equals(rhs.fst) {
-			return lhs.snd.Equals(rhs.snd)
+		if lhs.fst.Eq(rhs.fst) {
+			return lhs.snd.Eq(rhs.snd)
 		}
 		return false
 	default:

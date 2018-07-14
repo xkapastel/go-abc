@@ -40,13 +40,13 @@ import (
 type Block interface {
 	// Box wraps a block in another pair of brackets.
 	Box() Block
-	// Catenate composes many blocks left to right.
-	Catenate(...Block) Block
+	// Cat composes many blocks left to right.
+	Cat(...Block) Block
+	// Eq predicates structurally equivalent blocks.
+	Eq(Block) bool
 	// Reduce rewrites a block until it either reaches a normal
 	// form or the effort quota is exhausted.
 	Reduce(int) Block
-	// Equals predicates structurally equivalent blocks.
-	Equals(Block) bool
 	// Encode writes a block's bytecode to a bytestream.
 	Encode(io.ByteWriter) error
 	// String is a human-readable notation for blocks.

@@ -26,7 +26,7 @@ import (
 type opCopy struct{}
 
 func (tau opCopy) Box() Block { return &mkBox{tau} }
-func (tau opCopy) Catenate(xs ...Block) Block {
+func (tau opCopy) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
 	return newCat(tau, rest)
 }
@@ -35,7 +35,7 @@ func (tau opCopy) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(byteCopy)
 }
 func (tau opCopy) String() string { return "copy" }
-func (lhs opCopy) Equals(rhs Block) bool {
+func (lhs opCopy) Eq(rhs Block) bool {
 	switch rhs.(type) {
 	case opCopy:
 		return true

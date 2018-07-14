@@ -26,14 +26,14 @@ import (
 type opId struct{}
 
 func (tau opId) Box() Block { return &mkBox{tau} }
-func (tau opId) Catenate(xs ...Block) Block {
+func (tau opId) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
 	return newCat(tau, rest)
 }
 func (tau opId) Reduce(quota int) Block         { return tau }
 func (tau opId) Encode(dst io.ByteWriter) error { return nil }
 func (tau opId) String() string                 { return "" }
-func (lhs opId) Equals(rhs Block) bool {
+func (lhs opId) Eq(rhs Block) bool {
 	switch rhs.(type) {
 	case opId:
 		return true

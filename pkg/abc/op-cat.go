@@ -26,7 +26,7 @@ import (
 type opCat struct{}
 
 func (tau opCat) Box() Block { return &mkBox{tau} }
-func (tau opCat) Catenate(xs ...Block) Block {
+func (tau opCat) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
 	return newCat(tau, rest)
 }
@@ -35,7 +35,7 @@ func (tau opCat) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(byteCat)
 }
 func (tau opCat) String() string { return "cat" }
-func (lhs opCat) Equals(rhs Block) bool {
+func (lhs opCat) Eq(rhs Block) bool {
 	switch rhs.(type) {
 	case opCat:
 		return true

@@ -27,7 +27,7 @@ import (
 type mkBox struct{ body Block }
 
 func (tau *mkBox) Box() Block { return &mkBox{tau} }
-func (tau *mkBox) Catenate(xs ...Block) Block {
+func (tau *mkBox) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
 	return newCat(tau, rest)
 }
@@ -45,10 +45,10 @@ func (tau *mkBox) String() string {
 	body := tau.body.String()
 	return fmt.Sprintf("[%s]", body)
 }
-func (lhs *mkBox) Equals(rhs Block) bool {
+func (lhs *mkBox) Eq(rhs Block) bool {
 	switch rhs := rhs.(type) {
 	case *mkBox:
-		return lhs.body.Equals(rhs.body)
+		return lhs.body.Eq(rhs.body)
 	default:
 		return false
 	}

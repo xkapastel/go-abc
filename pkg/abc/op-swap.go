@@ -26,7 +26,7 @@ import (
 type opSwap struct{}
 
 func (tau opSwap) Box() Block { return &mkBox{tau} }
-func (tau opSwap) Catenate(xs ...Block) Block {
+func (tau opSwap) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
 	return newCat(tau, rest)
 }
@@ -35,7 +35,7 @@ func (tau opSwap) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(byteSwap)
 }
 func (tau opSwap) String() string { return "swap" }
-func (lhs opSwap) Equals(rhs Block) bool {
+func (lhs opSwap) Eq(rhs Block) bool {
 	switch rhs.(type) {
 	case opSwap:
 		return true

@@ -25,21 +25,24 @@ import (
 
 type opDrop struct{}
 
-func (tau opDrop) Box() Block { return &mkBox{tau} }
-func (tau opDrop) Cat(xs ...Block) Block {
+func (block opDrop) Box() Block { return &mkBox{block} }
+func (block opDrop) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
-	return newCatN(tau, rest)
+	return newCatN(block, rest)
 }
-func (tau opDrop) Reduce(quota int) Block { return tau }
-func (tau opDrop) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(byteDrop)
+func (block opDrop) Reduce(quota int) Block { return block }
+func (block opDrop) Encode(dst io.ByteWriter) error {
+	return dst.WriteByte(byteOpDrop)
 }
-func (tau opDrop) String() string { return "drop" }
+func (block opDrop) String() string { return "drop" }
 func (lhs opDrop) Eq(rhs Block) bool {
-	switch rhs.(type) {
-	case opDrop:
-		return true
-	default:
-		return false
+	_, ok := rhs.(opDrop)
+	return ok
+}
+func (block opDrop) step(ctx *reduce) bool {
+	if ctx.arity() == 0 {
+		ctx.clear(block)
 	}
+	ctx.pop()
+	return true
 }

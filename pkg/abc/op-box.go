@@ -25,21 +25,27 @@ import (
 
 type opBox struct{}
 
-func (tau opBox) Box() Block { return &mkBox{tau} }
-func (tau opBox) Cat(xs ...Block) Block {
+func (block opBox) Box() Block { return &mkBox{block} }
+func (block opBox) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
-	return newCat(tau, rest)
+	return newCat(block, rest)
 }
-func (tau opBox) Reduce(quota int) Block { return tau }
-func (tau opBox) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(byteBox)
+func (block opBox) Reduce(quota int) Block { return block }
+func (block opBox) Encode(dst io.ByteWriter) error {
+	return dst.WriteByte(byteOpBox)
 }
-func (tau opBox) String() string { return "box" }
+func (block opBox) String() string { return "box" }
 func (lhs opBox) Eq(rhs Block) bool {
-	switch rhs.(type) {
-	case opBox:
-		return true
-	default:
+	_, ok := rhs.(opBox)
+	return ok
+}
+func (block opBox) step(ctx *reduce) bool {
+	if ctx.arity() == 0 {
+		ctx.clear(block)
 		return false
 	}
+	lhs := ctx.pop()
+	rhs := lhs.Box()
+	ctx.push(rhs)
+	return true
 }

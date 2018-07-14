@@ -24,46 +24,65 @@ import (
 	"fmt"
 	"github.com/xkapastel/abc/pkg/abc"
 	"os"
+	"strings"
 )
 
-func usage() {
-	fmt.Println("abc (box | print | reduce)")
-	os.Exit(1)
-}
-
 func main() {
-	if len(os.Args) != 2 {
-		usage()
-	}
-	switch os.Args[1] {
-	case "box":
-		stdin := bufio.NewReader(os.Stdin)
-		lhs, err := abc.DecodeBlock(stdin)
-		if err != nil {
-			panic(err)
+	ctx := abc.NewBuild()
+	stdin := bufio.NewScanner(os.Stdin)
+	fmt.Printf("abc> ")
+	for stdin.Scan() {
+		str := stdin.Text()
+		buf := strings.Split(str, " ")
+		for _, word := range buf {
+			switch word {
+			case "opid":
+				ctx.OpId()
+			case "opapp":
+				ctx.OpApp()
+			case "opbox":
+				ctx.OpBox()
+			case "opcat":
+				ctx.OpCat()
+			case "opcopy":
+				ctx.OpCopy()
+			case "opdrop":
+				ctx.OpDrop()
+			case "opswap":
+				ctx.OpSwap()
+			case "mkbox":
+				ctx.MkBox()
+			case "mkcat":
+				ctx.MkCat()
+			case "mklink":
+				ctx.MkLink()
+			case "rmbox":
+				ctx.RmBox()
+			case "rmcat":
+				ctx.RmCat()
+			case "rmlink":
+				ctx.RmLink()
+			case "copy":
+				ctx.Copy()
+			case "drop":
+				ctx.Drop()
+			case "swap":
+				ctx.Swap()
+			case "reduce":
+				ctx.Reduce()
+			case "quit":
+				block := ctx.Block()
+				stdout := bufio.NewWriter(os.Stdout)
+				if err := block.Encode(stdout); err != nil {
+					panic(err)
+				}
+				stdout.Flush()
+				return
+			default:
+				fmt.Printf("Unknown command: %s\n", word)
+			}
 		}
-		rhs := lhs.Box()
-		stdout := bufio.NewWriter(os.Stdout)
-		rhs.Encode(stdout)
-		stdout.Flush()
-	case "reduce":
-		stdin := bufio.NewReader(os.Stdin)
-		lhs, err := abc.DecodeBlock(stdin)
-		if err != nil {
-			panic(err)
-		}
-		rhs := lhs.Reduce(1000)
-		stdout := bufio.NewWriter(os.Stdout)
-		rhs.Encode(stdout)
-		stdout.Flush()
-	case "print":
-		stdin := bufio.NewReader(os.Stdin)
-		tau, err := abc.DecodeBlock(stdin)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(tau)
-	default:
-		usage()
+		fmt.Println(ctx)
+		fmt.Printf("abc> ")
 	}
 }

@@ -24,69 +24,75 @@ import (
 )
 
 const (
-	byteBegin byte = iota
-	byteApp
-	byteBox
-	byteCat
+	byteId byte = iota
+	byteOpId
+	byteOpApp
+	byteOpBox
+	byteOpCat
+	byteOpCopy
+	byteOpDrop
+	byteOpSwap
+	byteOpEq
+	byteOpLink
+	byteMkBox
+	byteMkCat
+	byteMkLink
+	byteRmBox
+	byteRmCat
+	byteRmLink
+	byteMkCatAll
 	byteCopy
 	byteDrop
 	byteSwap
-	byteEnd
-	byteHash
+	byteStep
+	byteReduce
 )
 
-// DecodeBlock creates a block from a stream of bytecode.
+const kDefaultQuota int = 255
+
 func DecodeBlock(src io.ByteReader) (Block, error) {
-	var build []Block
-	var stack [][]Block
+	ctx := NewBuild()
 	for {
 		code, err := src.ReadByte()
 		switch {
 		case err == io.EOF:
-			// len(stack) > 0 not an error, just let it go.
-			return newCatN(build...), nil
+			return ctx.Block(), nil
 		case err != nil:
 			return nil, err
-		}
-		switch code {
-		case byteBegin:
-			stack = append(stack, build)
-			build = nil
-		case byteEnd:
-			if len(stack) == 0 {
-				// Not an error, just let it go.
-				continue
-			}
-			body := newCatN(build...)
-			wrap := &mkBox{body}
-			build = stack[len(stack)-1]
-			build = append(build, wrap)
-			stack = stack[:len(stack)-1]
-		case byteApp:
-			build = append(build, opApp{})
-		case byteBox:
-			build = append(build, opBox{})
-		case byteCat:
-			build = append(build, opCat{})
-		case byteCopy:
-			build = append(build, opCopy{})
-		case byteDrop:
-			build = append(build, opDrop{})
-		case byteSwap:
-			build = append(build, opSwap{})
-		case byteHash:
-			var name []byte
-			for i := 0; i < 32; i++ {
-				code, err := src.ReadByte()
-				if err != nil {
-					return nil, err
-				}
-				name = append(name, code)
-			}
-			link := opLink{name}
-			build = append(build, link)
-		default:
-			// Not an error, just let it go.
+		case code == byteOpId:
+			ctx.OpId()
+		case code == byteOpApp:
+			ctx.OpApp()
+		case code == byteOpBox:
+			ctx.OpBox()
+		case code == byteOpCat:
+			ctx.OpCat()
+		case code == byteOpCopy:
+			ctx.OpCopy()
+		case code == byteOpDrop:
+			ctx.OpDrop()
+		case code == byteOpSwap:
+			ctx.OpSwap()
+		case code == byteMkBox:
+			ctx.MkBox()
+		case code == byteMkCat:
+			ctx.MkCat()
+		case code == byteMkLink:
+			ctx.MkLink()
+		case code == byteRmBox:
+			ctx.RmBox()
+		case code == byteRmCat:
+			ctx.RmCat()
+		case code == byteRmLink:
+			ctx.RmLink()
+		case code == byteCopy:
+			ctx.Copy()
+		case code == byteDrop:
+			ctx.Drop()
+		case code == byteSwap:
+			ctx.Swap()
+		case code == byteReduce:
+			ctx.Reduce()
 		}
 	}
 }

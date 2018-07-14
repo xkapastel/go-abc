@@ -26,23 +26,20 @@ import (
 
 type mkBox struct{ body Block }
 
-func (tau *mkBox) Box() Block { return &mkBox{tau} }
-func (tau *mkBox) Cat(xs ...Block) Block {
+func (block *mkBox) Box() Block { return &mkBox{block} }
+func (block *mkBox) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
-	return newCat(tau, rest)
+	return newCat(block, rest)
 }
-func (tau *mkBox) Reduce(quota int) Block { return tau }
-func (tau *mkBox) Encode(dst io.ByteWriter) error {
-	if err := dst.WriteByte(byteBegin); err != nil {
+func (block *mkBox) Reduce(quota int) Block { return block }
+func (block *mkBox) Encode(dst io.ByteWriter) error {
+	if err := block.body.Encode(dst); err != nil {
 		return err
 	}
-	if err := tau.body.Encode(dst); err != nil {
-		return err
-	}
-	return dst.WriteByte(byteEnd)
+	return dst.WriteByte(byteMkBox)
 }
-func (tau *mkBox) String() string {
-	body := tau.body.String()
+func (block *mkBox) String() string {
+	body := block.body.String()
 	return fmt.Sprintf("[%s]", body)
 }
 func (lhs *mkBox) Eq(rhs Block) bool {
@@ -52,4 +49,8 @@ func (lhs *mkBox) Eq(rhs Block) bool {
 	default:
 		return false
 	}
+}
+func (block *mkBox) step(ctx *reduce) bool {
+	ctx.push(block)
+	return false
 }

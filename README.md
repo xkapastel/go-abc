@@ -7,6 +7,7 @@ learning research.
 - [Installation](#installation)
 - [Hypermedia](#hypermedia)
 - [Rewriting](#rewriting)
+- [Editing](#editing)
 - [Analysis](#analysis)
 - [Synthesis](#synthesis)
 - [Examples](#examples)
@@ -16,42 +17,16 @@ learning research.
 `go install -u -v github.com/xkapastel/abc/cmd/abc` will install the
 `abc` command.
 
-The `abc` command provides many tools for analyzing and synthesizing
-ABC bytecode.
-
-`abc print` displays a human-readable representation of the bytecode
-stream provided on standard input.
-
-`abc reduce` rewrites the bytecode stream on standard input until
-either a normal form is reached or the effort quota is exhausted.
-
-`abc box` wraps the bytecode stream provided on standard input in a
-block.
-
-`abc hash` computes the SHA-256 hash of the bytecode stream on
-standard input, and writes it as a bytecode link to standard output.
-
 ## Hypermedia
 ABC bytecode is hyperlinked, based on a content-addressing scheme.
 
 ## Rewriting
 
+## Editing
+
 ## Analysis
 
 ## Synthesis
-A `Set` is an iteratively defined collection of `Block`s. The blocks
-you get out are similar to the ones you put in. This can be used to
-write a simple hill climber:
-
-1. `Get()` N blocks from the set.
-2. Evaluate the fitness of each block.
-3. `Put()` the K best blocks in to the set.
-
-The blocks you sample will gradually become more fit. This algorithm,
-known as "priority queue training", was described in the Google Brain
-paper "Neural Program Synthesis with Priority Queue Training".
-
-A `Map` is an iteratively defined function between sets.
 
 ## Examples
 
@@ -66,7 +41,20 @@ $ cat app > case
 ```
 
 ## FAQ
-### Why is ABC unityped?
+### Why is ABC unityped? Don't types help with program search?
+1. There are many type systems and we want them all.
+
+Typed Clojure and Typed Racket demonstrate that with a sufficiently
+introspective runtime, the distinction between unityped and mulityped
+languages is not meaningful.
+
+The only way to embed every possible type system is to make the
+foundation unityped. You can always descend in to a subset of the
+space of all possible programs, and reject anything that doesn't obey
+your domain's type theory.
+
+2. Probability theory may complement type theory.
+
 Machine learning presents a unique opportunity for static analysis of
 programs that are intractable with traditional methods. Type
 information is certainly important for pruning the search space of

@@ -25,21 +25,39 @@ import (
 
 type opCat struct{}
 
-func (tau opCat) Box() Block { return &mkBox{tau} }
-func (tau opCat) Cat(xs ...Block) Block {
+func (block opCat) Box() Block { return &mkBox{block} }
+func (block opCat) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
-	return newCat(tau, rest)
+	return newCat(block, rest)
 }
-func (tau opCat) Reduce(quota int) Block { return tau }
-func (tau opCat) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(byteCat)
+func (block opCat) Reduce(quota int) Block { return block }
+func (block opCat) Encode(dst io.ByteWriter) error {
+	return dst.WriteByte(byteOpCat)
 }
-func (tau opCat) String() string { return "cat" }
+func (block opCat) String() string { return "cat" }
 func (lhs opCat) Eq(rhs Block) bool {
-	switch rhs.(type) {
-	case opCat:
-		return true
-	default:
+	_, ok := rhs.(opCat)
+	return ok
+}
+func (block opCat) step(ctx *reduce) bool {
+	if ctx.arity() < 2 {
+		ctx.clear(block)
 		return false
 	}
+	var ok bool
+	rhs, ok := ctx.peek(0).(*mkBox)
+	if !ok {
+		ctx.clear(block)
+		return false
+	}
+	lhs, ok := ctx.peek(1).(*mkBox)
+	if !ok {
+		ctx.clear(block)
+		return false
+	}
+	ctx.pop()
+	ctx.pop()
+	cat := lhs.body.Cat(rhs.body).Box()
+	ctx.push(cat)
+	return true
 }

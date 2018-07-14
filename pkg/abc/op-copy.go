@@ -25,21 +25,26 @@ import (
 
 type opCopy struct{}
 
-func (tau opCopy) Box() Block { return &mkBox{tau} }
-func (tau opCopy) Cat(xs ...Block) Block {
+func (block opCopy) Box() Block { return &mkBox{block} }
+func (block opCopy) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
-	return newCat(tau, rest)
+	return newCat(block, rest)
 }
-func (tau opCopy) Reduce(quota int) Block { return tau }
-func (tau opCopy) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(byteCopy)
+func (block opCopy) Reduce(quota int) Block { return block }
+func (block opCopy) Encode(dst io.ByteWriter) error {
+	return dst.WriteByte(byteOpCopy)
 }
-func (tau opCopy) String() string { return "copy" }
+func (block opCopy) String() string { return "copy" }
 func (lhs opCopy) Eq(rhs Block) bool {
-	switch rhs.(type) {
-	case opCopy:
-		return true
-	default:
+	_, ok := rhs.(opCopy)
+	return ok
+}
+func (block opCopy) step(ctx *reduce) bool {
+	if ctx.arity() == 0 {
+		ctx.clear(block)
 		return false
 	}
+	lhs := ctx.peek(0)
+	ctx.push(lhs)
+	return true
 }

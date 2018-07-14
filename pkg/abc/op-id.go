@@ -25,19 +25,18 @@ import (
 
 type opId struct{}
 
-func (tau opId) Box() Block { return &mkBox{tau} }
-func (tau opId) Cat(xs ...Block) Block {
+func (block opId) Box() Block { return &mkBox{block} }
+func (block opId) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
-	return newCat(tau, rest)
+	return newCat(block, rest)
 }
-func (tau opId) Reduce(quota int) Block         { return tau }
-func (tau opId) Encode(dst io.ByteWriter) error { return nil }
-func (tau opId) String() string                 { return "" }
+func (block opId) Reduce(quota int) Block { return block }
+func (block opId) Encode(dst io.ByteWriter) error {
+	return dst.WriteByte(byteOpId)
+}
+func (block opId) String() string { return "id" }
 func (lhs opId) Eq(rhs Block) bool {
-	switch rhs.(type) {
-	case opId:
-		return true
-	default:
-		return false
-	}
+	_, ok := rhs.(opId)
+	return ok
 }
+func (block opId) step(ctx *reduce) bool { return false }

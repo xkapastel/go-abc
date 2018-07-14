@@ -1,0 +1,65 @@
+/**
+This file is a part of ABC.
+Copyright (C) 2018 Matthew Blount
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public
+License along with this program.  If not, see
+<https://www.gnu.org/licenses/>.
+**/
+
+package abc
+
+import ()
+
+type BlockStack interface {
+	Push(Block)
+	Peek(int) Block
+	Pop() Block
+	Clear()
+	Block() Block
+	Each(func(Block))
+	Len() int
+}
+
+type stack struct {
+	data []Block
+}
+
+func NewBlockStack() BlockStack {
+	return &stack{
+		data: make([]Block, 0),
+	}
+}
+func (ctx *stack) Push(block Block) {
+	ctx.data = append(ctx.data, block)
+}
+func (ctx *stack) Peek(index int) Block {
+	return ctx.data[len(ctx.data)-1-index]
+}
+func (ctx *stack) Pop() Block {
+	block := ctx.data[len(ctx.data)-1]
+	ctx.data = ctx.data[:len(ctx.data)-1]
+	return block
+}
+func (ctx *stack) Clear() {
+	ctx.data = nil
+}
+func (ctx *stack) Len() int { return len(ctx.data) }
+func (ctx *stack) Block() Block {
+	return newCatN(ctx.data...)
+}
+func (ctx *stack) Each(fn func(Block)) {
+	for _, value := range ctx.data {
+		fn(value)
+	}
+}

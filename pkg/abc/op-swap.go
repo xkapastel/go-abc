@@ -25,21 +25,28 @@ import (
 
 type opSwap struct{}
 
-func (tau opSwap) Box() Block { return &mkBox{tau} }
-func (tau opSwap) Cat(xs ...Block) Block {
+func (block opSwap) Box() Block { return &mkBox{block} }
+func (block opSwap) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
-	return newCat(tau, rest)
+	return newCat(block, rest)
 }
-func (tau opSwap) Reduce(quota int) Block { return tau }
-func (tau opSwap) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(byteSwap)
+func (block opSwap) Reduce(quota int) Block { return block }
+func (block opSwap) Encode(dst io.ByteWriter) error {
+	return dst.WriteByte(byteOpSwap)
 }
-func (tau opSwap) String() string { return "swap" }
+func (block opSwap) String() string { return "swap" }
 func (lhs opSwap) Eq(rhs Block) bool {
-	switch rhs.(type) {
-	case opSwap:
-		return true
-	default:
+	_, ok := rhs.(opSwap)
+	return ok
+}
+func (block opSwap) step(ctx *reduce) bool {
+	if ctx.arity() < 2 {
+		ctx.clear(block)
 		return false
 	}
+	fst := ctx.pop()
+	snd := ctx.pop()
+	ctx.push(fst)
+	ctx.push(snd)
+	return true
 }

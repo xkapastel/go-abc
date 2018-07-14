@@ -45,6 +45,9 @@ func newCat(fst, snd Block) Block {
 	}
 }
 func newCatN(xs ...Block) Block {
+	if len(xs) == 1 {
+		return xs[0]
+	}
 	var block Block = opId{}
 	for i := len(xs) - 1; i >= 0; i-- {
 		child := xs[i]
@@ -59,133 +62,41 @@ func newCatNFlip(xs ...Block) Block {
 	}
 	return block
 }
-func (tau *mkCat) Box() Block { return &mkBox{tau} }
-func (tau *mkCat) Cat(xs ...Block) Block {
+func (block *mkCat) Box() Block { return &mkBox{block} }
+func (block *mkCat) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
-	return newCat(tau, rest)
+	return newCat(block, rest)
 }
-func (tau *mkCat) Reduce(quota int) Block {
-	var trash []Block
-	var stack []Block
-	var queue []Block = []Block{tau}
-
-	clear := func(block Block) {
-		for _, value := range stack {
-			trash = append(trash, value)
-		}
-		trash = append(trash, block)
-		stack = nil
+func (block *mkCat) Reduce(quota int) Block {
+	ctx := newReduce(block)
+	busy := true
+	for busy && quota > 0 {
+		busy = ctx.step()
+		quota--
 	}
-
-	for quota > 0 && len(queue) > 0 {
-		block := queue[len(queue)-1]
-		queue = queue[:len(queue)-1]
-		if block == nil {
-			panic(block)
-		}
-		switch block := block.(type) {
-		case opId:
-			//
-		case opApp:
-			if len(stack) == 0 {
-				clear(block)
-				continue
-			}
-			value, ok := stack[len(stack)-1].(*mkBox)
-			if !ok {
-				clear(block)
-				continue
-			}
-			stack = stack[:len(stack)-1]
-			queue = append(queue, value.body)
-			quota--
-		case opBox:
-			if len(stack) == 0 {
-				clear(block)
-				continue
-			}
-			value := stack[len(stack)-1]
-			boxed := &mkBox{value}
-			stack[len(stack)-1] = boxed
-			quota--
-		case opCat:
-			if len(stack) < 2 {
-				clear(block)
-				continue
-			}
-			var ok bool
-			rhs, ok := stack[len(stack)-1].(*mkBox)
-			if !ok {
-				clear(block)
-				continue
-			}
-			lhs, ok := stack[len(stack)-2].(*mkBox)
-			if !ok {
-				clear(block)
-				continue
-			}
-			body := newCat(lhs.body, rhs.body)
-			wrap := &mkBox{body}
-			stack = stack[:len(stack)-2]
-			stack = append(stack, wrap)
-			quota--
-		case opCopy:
-			if len(stack) == 0 {
-				clear(block)
-				continue
-			}
-			value := stack[len(stack)-1]
-			stack = append(stack, value)
-			quota--
-		case opDrop:
-			if len(stack) == 0 {
-				clear(block)
-				continue
-			}
-			stack = stack[:len(stack)-1]
-			quota--
-		case opSwap:
-			if len(stack) < 2 {
-				clear(block)
-				continue
-			}
-			tmp := stack[len(stack)-1]
-			stack[len(stack)-1] = stack[len(stack)-2]
-			stack[len(stack)-2] = tmp
-			quota--
-		case *mkBox:
-			stack = append(stack, block)
-			quota--
-		case *mkCat:
-			queue = append(queue, block.snd)
-			queue = append(queue, block.fst)
-		default:
-			panic("unknown block")
-		}
-	}
-	qq := newCatNFlip(queue...)
-	ss := newCatN(stack...)
-	tt := newCatN(trash...)
-	return newCatN(tt, ss, qq)
+	return ctx.Block()
 }
-func (tau *mkCat) Encode(dst io.ByteWriter) error {
-	if err := tau.fst.Encode(dst); err != nil {
+func (block *mkCat) Encode(dst io.ByteWriter) error {
+	if err := block.fst.Encode(dst); err != nil {
 		return err
 	}
-	return tau.snd.Encode(dst)
+	if err := block.snd.Encode(dst); err != nil {
+		return err
+	}
+	return dst.WriteByte(byteMkCat)
 }
-func (tau *mkCat) String() string {
+func (block *mkCat) String() string {
 	var ok bool
-	_, ok = tau.fst.(opId)
+	_, ok = block.fst.(opId)
 	if ok {
-		return tau.snd.String()
+		return block.snd.String()
 	}
-	_, ok = tau.snd.(opId)
+	_, ok = block.snd.(opId)
 	if ok {
-		return tau.fst.String()
+		return block.fst.String()
 	}
-	fst := tau.fst.String()
-	snd := tau.snd.String()
+	fst := block.fst.String()
+	snd := block.snd.String()
 	return fmt.Sprintf("%s %s", fst, snd)
 }
 func (lhs *mkCat) Eq(rhs Block) bool {
@@ -198,4 +109,9 @@ func (lhs *mkCat) Eq(rhs Block) bool {
 	default:
 		return false
 	}
+}
+func (block *mkCat) step(ctx *reduce) bool {
+	ctx.queue(block.snd)
+	ctx.queue(block.fst)
+	return false
 }

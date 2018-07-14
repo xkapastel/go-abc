@@ -51,6 +51,7 @@ type Block interface {
 	Encode(io.ByteWriter) error
 	// String is a human-readable notation for blocks.
 	String() string
+	step(*reduce) bool
 }
 
 // Id is the identity and does nothing. It's represented by

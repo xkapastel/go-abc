@@ -27,22 +27,25 @@ import (
 
 type opLink struct{ name []byte }
 
-func (tau opLink) Box() Block { return &mkBox{tau} }
-func (tau opLink) Cat(xs ...Block) Block {
+func (block opLink) Box() Block { return &mkBox{block} }
+func (block opLink) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
-	return newCat(tau, rest)
+	return newCat(block, rest)
 }
-func (tau opLink) Reduce(quota int) Block { return tau }
-func (tau opLink) Encode(dst io.ByteWriter) error {
-	for _, value := range tau.name {
+func (block opLink) Reduce(quota int) Block { return block }
+func (block opLink) Encode(dst io.ByteWriter) error {
+	if err := dst.WriteByte(byteOpLink); err != nil {
+		return err
+	}
+	for _, value := range block.name {
 		if err := dst.WriteByte(value); err != nil {
 			return err
 		}
 	}
 	return nil
 }
-func (tau opLink) String() string {
-	name := hex.EncodeToString(tau.name)
+func (block opLink) String() string {
+	name := hex.EncodeToString(block.name)
 	return fmt.Sprintf("#%s", name)
 }
 func (lhs opLink) Eq(rhs Block) bool {
@@ -57,4 +60,8 @@ func (lhs opLink) Eq(rhs Block) bool {
 	default:
 		return false
 	}
+}
+func (block opLink) step(ctx *reduce) bool {
+	ctx.clear(block)
+	return false
 }

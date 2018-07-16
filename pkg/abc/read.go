@@ -111,7 +111,7 @@ func Read(src io.Reader) (Block, error) {
 		case word == "nq":
 			build = append(build, Neq)
 		case word == "t":
-			// build = append(build, Tag)
+			build = append(build, Tag)
 		case len(word) == 0:
 			continue
 		case len(word) <= 2:

@@ -57,6 +57,8 @@ type Block interface {
 	Encode(io.ByteWriter) error
 	// String is a human-readable notation for blocks.
 	String() string
+	// step attempts to perform a rewrite, returning whether or not
+	// any work was actually done.
 	step(*reduce) bool
 }
 
@@ -126,5 +128,5 @@ func init() {
 	NoSwap = opNoSwap{}
 	Eq = opEq{}
 	Neq = opNeq{}
-	//Tag = opTag{}
+	Tag = opTag{}
 }

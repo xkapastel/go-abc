@@ -19,10 +19,32 @@ License along with this program.  If not, see
 
 package abc
 
+// Reduce rewrites a block until it either reaches a normal
+// form or the effort quota is exhausted.
+func Reduce(block Block, quota int) Block {
+	ctx := newReduce(block)
+	busy := true
+	for busy && quota > 0 {
+		busy = ctx.step()
+		quota--
+	}
+	return ctx.Block()
+}
+
 type reduce struct {
 	kill *stack
 	data *stack
 	work *stack
+	// tags is a bit of a strange but interesting feature
+	// I had the idea for recently. It's adapted from Awelon's
+	// "annotations": parenthesized words with the semantics
+	// of the identity function, that have a kind of benign
+	// effect in the form of communication with the runtime.
+	//
+	// Tags let you annotate the reduction of a program with
+	// blocks, generalizing the strings used in Awelon
+	// annotations and letting us use a more compact bytecode.
+	tags *stack
 }
 
 func newReduce(init Block) *reduce {
@@ -32,6 +54,7 @@ func newReduce(init Block) *reduce {
 		kill: newStack(),
 		data: newStack(),
 		work: work,
+		tags: newStack(),
 	}
 }
 func (ctx *reduce) arity() int { return ctx.data.Len() }
@@ -55,6 +78,9 @@ func (ctx *reduce) clear(block Block) {
 func (ctx *reduce) stash(block Block) {
 	ctx.kill.Push(block)
 }
+func (ctx *reduce) tag(block Block) {
+	ctx.tags.Push(block)
+}
 func (ctx *reduce) step() bool {
 	for ctx.work.Len() > 0 {
 		block := ctx.work.Pop()
@@ -73,4 +99,7 @@ func (ctx *reduce) Block() Block {
 	data := ctx.data.Block()
 	kill := ctx.kill.Block()
 	return NewCat(kill, work, data)
+}
+func (ctx *reduce) Tags() Block {
+	return ctx.tags.Block()
 }

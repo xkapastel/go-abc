@@ -25,8 +25,7 @@ import (
 
 type opApp struct{}
 
-func (block opApp) Reduce(quota int) Block { return block }
-func (block opApp) String() string         { return "a" }
+func (block opApp) String() string { return "a" }
 func (block opApp) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpApp)
 }

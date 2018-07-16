@@ -25,7 +25,6 @@ import (
 
 type opNoSwap struct{}
 
-func (block opNoSwap) Reduce(quota int) Block { return block }
 func (block opNoSwap) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpNoSwap)
 }

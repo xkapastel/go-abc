@@ -25,7 +25,6 @@ import (
 
 type opBox struct{}
 
-func (block opBox) Reduce(quota int) Block { return block }
 func (block opBox) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpBox)
 }

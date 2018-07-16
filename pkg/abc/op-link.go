@@ -29,7 +29,6 @@ type opLink struct {
 	value []byte
 }
 
-func (block opLink) Reduce(quota int) Block { return block }
 func (block opLink) Encode(dst io.ByteWriter) error {
 	if err := dst.WriteByte(CodeOpLink); err != nil {
 		return err

@@ -66,15 +66,6 @@ func NewCatR(xs ...Block) Block {
 	}
 	return block
 }
-func (block *mkCat) Reduce(quota int) Block {
-	ctx := newReduce(block)
-	busy := true
-	for busy && quota > 0 {
-		busy = ctx.step()
-		quota--
-	}
-	return ctx.Block()
-}
 func (block *mkCat) Encode(dst io.ByteWriter) error {
 	if err := block.fst.Encode(dst); err != nil {
 		return err

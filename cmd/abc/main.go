@@ -31,11 +31,11 @@ func usage() {
 
 Available commands are:
 
-decode  - read a stream of bytecode
-read    - read a string
-reduce  - optimize a block
-reify   - convert a block to a syntax tree
-reflect - convert a syntax tree to a block
+decode  : byte -> text = convert bytecode to text
+read    : text -> byte = convert text to bytecode
+reduce  : byte -> byte = rewrite bytecode
+reify   : byte -> byte = convert code to syntax tree
+reflect : byte -> byte = convert syntax tree to code
 `)
 	os.Exit(1)
 }
@@ -71,7 +71,7 @@ func main() {
 			panic(err)
 		}
 		stdout := bufio.NewWriter(os.Stdout)
-		rhs := lhs.Reduce(defaultQuota)
+		rhs := abc.Reduce(lhs, defaultQuota)
 		rhs.Encode(stdout)
 		stdout.Flush()
 	case "reify":

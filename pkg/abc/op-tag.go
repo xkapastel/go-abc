@@ -25,7 +25,6 @@ import (
 
 type opTag struct{}
 
-func (block opTag) Reduce(quota int) Block { return block }
 func (block opTag) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpTag)
 }
@@ -38,5 +37,9 @@ func (block opTag) Copy() bool { return true }
 func (block opTag) Drop() bool { return true }
 func (block opTag) Swap() bool { return true }
 func (block opTag) step(ctx *reduce) bool {
+	rhs := ctx.peek(0)
+	lhs := ctx.peek(1)
+	tag := NewBox(NewCat(lhs, rhs))
+	ctx.tag(tag)
 	return false
 }

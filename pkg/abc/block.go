@@ -42,9 +42,6 @@ import (
 // scheme. A block may refer to another block by its SHA-256 hash.
 // This allows compression and an easy opportunity for acceleration.
 type Block interface {
-	// Reduce rewrites a block until it either reaches a normal
-	// form or the effort quota is exhausted.
-	Reduce(int) Block
 	// Eq predicates structurally equivalent blocks.
 	Eq(Block) bool
 	// Copy predicates blocks that can be copied.

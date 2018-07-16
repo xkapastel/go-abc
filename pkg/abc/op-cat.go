@@ -25,7 +25,6 @@ import (
 
 type opCat struct{}
 
-func (block opCat) Reduce(quota int) Block { return block }
 func (block opCat) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpCat)
 }

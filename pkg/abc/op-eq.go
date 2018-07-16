@@ -25,7 +25,6 @@ import (
 
 type opEq struct{}
 
-func (block opEq) Reduce(quota int) Block { return block }
 func (block opEq) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpEq)
 }

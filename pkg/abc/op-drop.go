@@ -25,7 +25,6 @@ import (
 
 type opDrop struct{}
 
-func (block opDrop) Reduce(quota int) Block { return block }
 func (block opDrop) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpDrop)
 }

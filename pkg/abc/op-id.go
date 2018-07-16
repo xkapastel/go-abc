@@ -25,7 +25,6 @@ import (
 
 type opId struct{}
 
-func (block opId) Reduce(quota int) Block         { return block }
 func (block opId) Encode(dst io.ByteWriter) error { return nil }
 func (block opId) String() string                 { return "" }
 func (lhs opId) Eq(rhs Block) bool {

@@ -25,7 +25,6 @@ import (
 
 type opCopy struct{}
 
-func (block opCopy) Reduce(quota int) Block { return block }
 func (block opCopy) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpCopy)
 }

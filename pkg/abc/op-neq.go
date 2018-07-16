@@ -25,7 +25,6 @@ import (
 
 type opNeq struct{}
 
-func (block opNeq) Reduce(quota int) Block { return block }
 func (block opNeq) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpNeq)
 }

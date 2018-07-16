@@ -27,8 +27,7 @@ import (
 type mkBox struct{ body Block }
 
 // NewBox wraps the given block in a box.
-func NewBox(block Block) Block              { return &mkBox{block} }
-func (block *mkBox) Reduce(quota int) Block { return block }
+func NewBox(block Block) Block { return &mkBox{block} }
 func (block *mkBox) Encode(dst io.ByteWriter) error {
 	if err := dst.WriteByte(CodeBegin); err != nil {
 		return err

@@ -80,10 +80,7 @@ func (block *mkCat) Encode(dst io.ByteWriter) error {
 	if err := block.fst.Encode(dst); err != nil {
 		return err
 	}
-	if err := block.snd.Encode(dst); err != nil {
-		return err
-	}
-	return dst.WriteByte(byteMkCat)
+	return block.snd.Encode(dst)
 }
 func (block *mkCat) String() string {
 	var ok bool
@@ -109,6 +106,24 @@ func (lhs *mkCat) Eq(rhs Block) bool {
 	default:
 		return false
 	}
+}
+func (block *mkCat) Copy() bool {
+	if block.fst.Copy() {
+		return true
+	}
+	return block.snd.Copy()
+}
+func (block *mkCat) Drop() bool {
+	if block.fst.Drop() {
+		return true
+	}
+	return block.snd.Drop()
+}
+func (block *mkCat) Swap() bool {
+	if block.fst.Swap() {
+		return true
+	}
+	return block.snd.Swap()
 }
 func (block *mkCat) step(ctx *reduce) bool {
 	ctx.queue(block.snd)

@@ -20,17 +20,17 @@ License along with this program.  If not, see
 package abc
 
 type reduce struct {
-	kill BlockStack
-	data BlockStack
-	work BlockStack
+	kill *stack
+	data *stack
+	work *stack
 }
 
 func newReduce(init Block) *reduce {
-	work := NewBlockStack()
+	work := newStack()
 	work.Push(init)
 	return &reduce{
-		kill: NewBlockStack(),
-		data: NewBlockStack(),
+		kill: newStack(),
+		data: newStack(),
 		work: work,
 	}
 }
@@ -51,6 +51,9 @@ func (ctx *reduce) clear(block Block) {
 	ctx.data.Each(ctx.kill.Push)
 	ctx.kill.Push(block)
 	ctx.data.Clear()
+}
+func (ctx *reduce) stash(block Block) {
+	ctx.kill.Push(block)
 }
 func (ctx *reduce) step() bool {
 	for ctx.work.Len() > 0 {

@@ -21,21 +21,11 @@ package abc
 
 import ()
 
-type BlockStack interface {
-	Push(Block)
-	Peek(int) Block
-	Pop() Block
-	Clear()
-	Block() Block
-	Each(func(Block))
-	Len() int
-}
-
 type stack struct {
 	data []Block
 }
 
-func NewBlockStack() BlockStack {
+func newStack() *stack {
 	return &stack{
 		data: make([]Block, 0),
 	}

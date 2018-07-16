@@ -25,7 +25,9 @@ import (
 	"io"
 )
 
-type opLink struct{ name []byte }
+type opLink struct {
+	value []byte
+}
 
 func (block opLink) Box() Block { return &mkBox{block} }
 func (block opLink) Cat(xs ...Block) Block {
@@ -34,10 +36,10 @@ func (block opLink) Cat(xs ...Block) Block {
 }
 func (block opLink) Reduce(quota int) Block { return block }
 func (block opLink) Encode(dst io.ByteWriter) error {
-	if err := dst.WriteByte(byteOpLink); err != nil {
+	if err := dst.WriteByte(CodeOpLink); err != nil {
 		return err
 	}
-	for _, value := range block.name {
+	for _, value := range block.value {
 		if err := dst.WriteByte(value); err != nil {
 			return err
 		}
@@ -45,22 +47,16 @@ func (block opLink) Encode(dst io.ByteWriter) error {
 	return nil
 }
 func (block opLink) String() string {
-	name := hex.EncodeToString(block.name)
+	name := hex.EncodeToString(block.value)
 	return fmt.Sprintf("#%s", name)
 }
 func (lhs opLink) Eq(rhs Block) bool {
-	switch rhs := rhs.(type) {
-	case opLink:
-		for i := 0; i < 32; i++ {
-			if lhs.name[i] != rhs.name[i] {
-				return false
-			}
-		}
-		return true
-	default:
-		return false
-	}
+	_, ok := rhs.(opLink)
+	return ok
 }
+func (block opLink) Copy() bool { return true }
+func (block opLink) Drop() bool { return true }
+func (block opLink) Swap() bool { return true }
 func (block opLink) step(ctx *reduce) bool {
 	ctx.clear(block)
 	return false

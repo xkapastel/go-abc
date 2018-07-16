@@ -32,13 +32,16 @@ func (block opCat) Cat(xs ...Block) Block {
 }
 func (block opCat) Reduce(quota int) Block { return block }
 func (block opCat) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(byteOpCat)
+	return dst.WriteByte(CodeOpCat)
 }
 func (block opCat) String() string { return "cat" }
 func (lhs opCat) Eq(rhs Block) bool {
 	_, ok := rhs.(opCat)
 	return ok
 }
+func (block opCat) Copy() bool { return true }
+func (block opCat) Drop() bool { return true }
+func (block opCat) Swap() bool { return true }
 func (block opCat) step(ctx *reduce) bool {
 	if ctx.arity() < 2 {
 		ctx.clear(block)

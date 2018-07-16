@@ -24,75 +24,85 @@ import (
 )
 
 const (
-	byteId byte = iota
-	byteOpId
-	byteOpApp
-	byteOpBox
-	byteOpCat
-	byteOpCopy
-	byteOpDrop
-	byteOpSwap
-	byteOpEq
-	byteOpLink
-	byteMkBox
-	byteMkCat
-	byteMkLink
-	byteRmBox
-	byteRmCat
-	byteRmLink
-	byteMkCatAll
-	byteCopy
-	byteDrop
-	byteSwap
-	byteStep
-	byteReduce
+	CodeBegin byte = iota
+	CodeOpApp
+	CodeOpBox
+	CodeOpCat
+	CodeOpCopy
+	CodeOpDrop
+	CodeOpSwap
+	CodeOpNoCopy
+	CodeOpNoDrop
+	CodeOpNoSwap
+	CodeOpEq
+	CodeOpNeq
+	CodeOpTag
+	CodeOpLink
+	CodeEnd
 )
 
-const kDefaultQuota int = 255
-
+// DecodeBlock reads a block from a stream of bytecode.
 func DecodeBlock(src io.ByteReader) (Block, error) {
-	ctx := NewBuild()
+	var dead uint
+	var build []Block
+	var stack [][]Block
 	for {
 		code, err := src.ReadByte()
 		switch {
 		case err == io.EOF:
-			return ctx.Block(), nil
+			return newCatN(build...), nil
 		case err != nil:
 			return nil, err
-		case code == byteOpId:
-			ctx.OpId()
-		case code == byteOpApp:
-			ctx.OpApp()
-		case code == byteOpBox:
-			ctx.OpBox()
-		case code == byteOpCat:
-			ctx.OpCat()
-		case code == byteOpCopy:
-			ctx.OpCopy()
-		case code == byteOpDrop:
-			ctx.OpDrop()
-		case code == byteOpSwap:
-			ctx.OpSwap()
-		case code == byteMkBox:
-			ctx.MkBox()
-		case code == byteMkCat:
-			ctx.MkCat()
-		case code == byteMkLink:
-			ctx.MkLink()
-		case code == byteRmBox:
-			ctx.RmBox()
-		case code == byteRmCat:
-			ctx.RmCat()
-		case code == byteRmLink:
-			ctx.RmLink()
-		case code == byteCopy:
-			ctx.Copy()
-		case code == byteDrop:
-			ctx.Drop()
-		case code == byteSwap:
-			ctx.Swap()
-		case code == byteReduce:
-			ctx.Reduce()
+		case code == CodeBegin:
+			stack = append(stack, build)
+			build = nil
+		case code == CodeEnd:
+			if len(stack) == 0 {
+				dead++
+				continue
+			}
+			body := newCatN(build...)
+			wrap := body.Box()
+			build = stack[len(stack)-1]
+			build = append(build, wrap)
+			stack = stack[:len(stack)-1]
+		case code == CodeOpApp:
+			build = append(build, App)
+		case code == CodeOpBox:
+			build = append(build, Box)
+		case code == CodeOpCat:
+			build = append(build, Cat)
+		case code == CodeOpCopy:
+			build = append(build, Copy)
+		case code == CodeOpDrop:
+			build = append(build, Drop)
+		case code == CodeOpSwap:
+			build = append(build, Swap)
+		case code == CodeOpNoCopy:
+			build = append(build, NoCopy)
+		case code == CodeOpNoDrop:
+			build = append(build, NoDrop)
+		case code == CodeOpNoSwap:
+			build = append(build, NoSwap)
+		case code == CodeOpEq:
+			build = append(build, Eq)
+		case code == CodeOpNeq:
+			build = append(build, Neq)
+		case code == CodeOpTag:
+			build = append(build, Tag)
+		case code == CodeOpLink:
+			var buf []byte
+			for i := 0; i < 32; i++ {
+				value, err := src.ReadByte()
+				if err != nil {
+					return nil, err
+				}
+				buf = append(buf, value)
+			}
+			link := opLink{buf}
+			build = append(build, link)
+		default:
+			dead++
 		}
 	}
 }

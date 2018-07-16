@@ -23,34 +23,26 @@ import (
 	"io"
 )
 
-type opDrop struct{}
+type opNoCopy struct{}
 
-func (block opDrop) Box() Block { return &mkBox{block} }
-func (block opDrop) Cat(xs ...Block) Block {
+func (block opNoCopy) Box() Block { return &mkBox{block} }
+func (block opNoCopy) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
-	return newCatN(block, rest)
+	return newCat(block, rest)
 }
-func (block opDrop) Reduce(quota int) Block { return block }
-func (block opDrop) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(CodeOpDrop)
+func (block opNoCopy) Reduce(quota int) Block { return block }
+func (block opNoCopy) Encode(dst io.ByteWriter) error {
+	return dst.WriteByte(CodeOpNoCopy)
 }
-func (block opDrop) String() string { return "drop" }
-func (lhs opDrop) Eq(rhs Block) bool {
-	_, ok := rhs.(opDrop)
+func (block opNoCopy) String() string { return "nocopy" }
+func (lhs opNoCopy) Eq(rhs Block) bool {
+	_, ok := rhs.(opNoCopy)
 	return ok
 }
-func (block opDrop) Copy() bool { return true }
-func (block opDrop) Drop() bool { return true }
-func (block opDrop) Swap() bool { return true }
-func (block opDrop) step(ctx *reduce) bool {
-	if ctx.arity() == 0 {
-		ctx.clear(block)
-	}
-	lhs := ctx.peek(0)
-	if !lhs.Drop() {
-		ctx.clear(block)
-		return false
-	}
-	ctx.pop()
-	return true
+func (block opNoCopy) Copy() bool { return false }
+func (block opNoCopy) Drop() bool { return true }
+func (block opNoCopy) Swap() bool { return true }
+func (block opNoCopy) step(ctx *reduce) bool {
+	ctx.stash(block)
+	return false
 }

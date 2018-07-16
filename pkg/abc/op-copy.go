@@ -32,19 +32,26 @@ func (block opCopy) Cat(xs ...Block) Block {
 }
 func (block opCopy) Reduce(quota int) Block { return block }
 func (block opCopy) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(byteOpCopy)
+	return dst.WriteByte(CodeOpCopy)
 }
 func (block opCopy) String() string { return "copy" }
 func (lhs opCopy) Eq(rhs Block) bool {
 	_, ok := rhs.(opCopy)
 	return ok
 }
+func (block opCopy) Copy() bool { return true }
+func (block opCopy) Drop() bool { return true }
+func (block opCopy) Swap() bool { return true }
 func (block opCopy) step(ctx *reduce) bool {
 	if ctx.arity() == 0 {
 		ctx.clear(block)
 		return false
 	}
 	lhs := ctx.peek(0)
+	if !lhs.Copy() {
+		ctx.clear(block)
+		return false
+	}
 	ctx.push(lhs)
 	return true
 }

@@ -32,20 +32,33 @@ func (block opSwap) Cat(xs ...Block) Block {
 }
 func (block opSwap) Reduce(quota int) Block { return block }
 func (block opSwap) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(byteOpSwap)
+	return dst.WriteByte(CodeOpSwap)
 }
 func (block opSwap) String() string { return "swap" }
 func (lhs opSwap) Eq(rhs Block) bool {
 	_, ok := rhs.(opSwap)
 	return ok
 }
+func (block opSwap) Copy() bool { return true }
+func (block opSwap) Drop() bool { return true }
+func (block opSwap) Swap() bool { return true }
 func (block opSwap) step(ctx *reduce) bool {
 	if ctx.arity() < 2 {
 		ctx.clear(block)
 		return false
 	}
-	fst := ctx.pop()
-	snd := ctx.pop()
+	fst := ctx.peek(0)
+	snd := ctx.peek(1)
+	if !fst.Swap() {
+		ctx.clear(block)
+		return false
+	}
+	if !snd.Swap() {
+		ctx.clear(block)
+		return false
+	}
+	ctx.pop()
+	ctx.pop()
 	ctx.push(fst)
 	ctx.push(snd)
 	return true

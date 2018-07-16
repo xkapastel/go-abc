@@ -32,13 +32,16 @@ func (block opBox) Cat(xs ...Block) Block {
 }
 func (block opBox) Reduce(quota int) Block { return block }
 func (block opBox) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(byteOpBox)
+	return dst.WriteByte(CodeOpBox)
 }
 func (block opBox) String() string { return "box" }
 func (lhs opBox) Eq(rhs Block) bool {
 	_, ok := rhs.(opBox)
 	return ok
 }
+func (block opBox) Copy() bool { return true }
+func (block opBox) Drop() bool { return true }
+func (block opBox) Swap() bool { return true }
 func (block opBox) step(ctx *reduce) bool {
 	if ctx.arity() == 0 {
 		ctx.clear(block)

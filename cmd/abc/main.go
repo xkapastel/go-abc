@@ -24,65 +24,52 @@ import (
 	"fmt"
 	"github.com/xkapastel/abc/pkg/abc"
 	"os"
-	"strings"
 )
 
+func usage() {
+	fmt.Println(`usage: abc [command]
+
+Available commands are:
+
+read    - read a stream of bytecode
+parse   - read a string
+reduce  - optimize a block
+reify   - convert a block to a syntax tree
+reflect - convert a syntax tree to a block
+`)
+	os.Exit(1)
+}
+
+const prompt = "abc> "
+
 func main() {
-	ctx := abc.NewBuild()
-	stdin := bufio.NewScanner(os.Stdin)
-	fmt.Printf("abc> ")
-	for stdin.Scan() {
-		str := stdin.Text()
-		buf := strings.Split(str, " ")
-		for _, word := range buf {
-			switch word {
-			case "opid":
-				ctx.OpId()
-			case "opapp":
-				ctx.OpApp()
-			case "opbox":
-				ctx.OpBox()
-			case "opcat":
-				ctx.OpCat()
-			case "opcopy":
-				ctx.OpCopy()
-			case "opdrop":
-				ctx.OpDrop()
-			case "opswap":
-				ctx.OpSwap()
-			case "mkbox":
-				ctx.MkBox()
-			case "mkcat":
-				ctx.MkCat()
-			case "mklink":
-				ctx.MkLink()
-			case "rmbox":
-				ctx.RmBox()
-			case "rmcat":
-				ctx.RmCat()
-			case "rmlink":
-				ctx.RmLink()
-			case "copy":
-				ctx.Copy()
-			case "drop":
-				ctx.Drop()
-			case "swap":
-				ctx.Swap()
-			case "reduce":
-				ctx.Reduce()
-			case "quit":
-				block := ctx.Block()
-				stdout := bufio.NewWriter(os.Stdout)
-				if err := block.Encode(stdout); err != nil {
-					panic(err)
-				}
-				stdout.Flush()
-				return
-			default:
-				fmt.Printf("Unknown command: %s\n", word)
-			}
+	const defaultQuota = 1000
+	if len(os.Args) != 2 {
+		usage()
+	}
+	switch os.Args[1] {
+	case "read":
+		stdin := bufio.NewReader(os.Stdin)
+		block, err := abc.DecodeBlock(stdin)
+		if err != nil {
+			panic(err)
 		}
-		fmt.Println(ctx)
-		fmt.Printf("abc> ")
+		fmt.Println(block)
+	case "parse":
+	case "quote":
+	case "reduce":
+		stdin := bufio.NewReader(os.Stdin)
+		lhs, err := abc.DecodeBlock(stdin)
+		if err != nil {
+			panic(err)
+		}
+		stdout := bufio.NewWriter(os.Stdout)
+		rhs := lhs.Reduce(defaultQuota)
+		rhs.Encode(stdout)
+		stdout.Flush()
+	case "reify":
+	case "reflect":
+	default:
+		usage()
 	}
 }

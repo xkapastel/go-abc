@@ -31,14 +31,17 @@ func (block opApp) Cat(xs ...Block) Block {
 	return newCat(block, rest)
 }
 func (block opApp) Reduce(quota int) Block { return block }
+func (block opApp) String() string         { return "app" }
 func (block opApp) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(byteOpApp)
+	return dst.WriteByte(CodeOpApp)
 }
-func (block opApp) String() string { return "app" }
 func (lhs opApp) Eq(rhs Block) bool {
 	_, ok := rhs.(opApp)
 	return ok
 }
+func (block opApp) Copy() bool { return true }
+func (block opApp) Drop() bool { return true }
+func (block opApp) Swap() bool { return true }
 func (block opApp) step(ctx *reduce) bool {
 	if ctx.arity() == 0 {
 		ctx.clear(block)

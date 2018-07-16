@@ -24,15 +24,19 @@ import (
 )
 
 // A block is executable code. ABC is a universal combinator
-// calculus, with seven primitives:
-//
-//         [A] app  = A
-//         [A] box  = [[A]]
-//     [A] [B] cat  = [A B]
-//         [A] copy = [A] [A]
-//         [A] drop =
-//     [A] [B] swap = [B] [A]
-//     [A] [A] eq   = [A] [A]
+// calculus, with twelve primitives:
+//         [A] app    = A
+//         [A] box    = [[A]]
+//     [A] [B] cat    = [A B]
+//         [A] copy   = [A] [A]    if A does not contain nocopy
+//         [A] drop   =            if A does not contain nodrop
+//     [A] [B] swap   = [B] [A]    if A and B do not contain noswap
+//         [A] nocopy = nocopy [A]
+//         [A] nodrop = nodrop [A]
+//         [A] noswap = noswap [A]
+//     [A] [B] eq     = [A] [B]    if A == B
+//     [A] [B] neq    = [A] [B]    if A != B
+//     [A] [B] tag    = [A] [B]    invoke the runtime with A and B
 //
 // Additionally, code is hyperlinked with a content-based addressing
 // scheme. A block may refer to another block by its SHA-256 hash.
@@ -44,10 +48,16 @@ type Block interface {
 	Cat(...Block) Block
 	// Eq predicates structurally equivalent blocks.
 	Eq(Block) bool
+	// Copy predicates blocks that can be copied.
+	Copy() bool
+	// Drop predicates blocks that can be dropped.
+	Drop() bool
+	// Swap predicates blocks that can be swapped.
+	Swap() bool
 	// Reduce rewrites a block until it either reaches a normal
 	// form or the effort quota is exhausted.
 	Reduce(int) Block
-	// Encode writes a block's bytecode to a bytestream.
+	// Encode writes a block to a byte stream.
 	Encode(io.ByteWriter) error
 	// String is a human-readable notation for blocks.
 	String() string
@@ -72,16 +82,40 @@ var Box Block
 var Cat Block
 
 // Copy duplicates a block of code.
-//     [A] copy = [A] [A]
+//     [A] copy = [A] [A] if A does not contain nocopy
 var Copy Block
 
 // Drop erases a block of code.
-//     [A] drop =
+//     [A] drop =     if A does not contain nodrop
 var Drop Block
 
 // Swap exchanges two blocks of code.
-//     [A] [B] swap = [B] [A]
+//     [A] [B] swap = [B] [A] if A and B do not contain noswap
 var Swap Block
+
+// NoCopy marks blocks containing it as affine.
+//     [A] nocopy = nocopy [A]
+var NoCopy Block
+
+// NoDrop marks blocks containing it as relevant.
+//     [A] nodrop = nodrop [A]
+var NoDrop Block
+
+// NoSwap marks blocks containing it as ordered.
+//     [A] noswap = noswap [A]
+var NoSwap Block
+
+// Eq progresses only if two blocks are structurally equivalent.
+//     [A] [B] eq = [A] [B] if A == B
+var Eq Block
+
+// Neq progresses only if two blocks are not structurally equivalent.
+//     [A] [B] neq = [A] [B] if A != B
+var Neq Block
+
+// Tag invokes the runtime with two blocks.
+//     [A] [B] tag = [A] [B]
+var Tag Block
 
 func init() {
 	Id = opId{}
@@ -91,4 +125,10 @@ func init() {
 	Copy = opCopy{}
 	Drop = opDrop{}
 	Swap = opSwap{}
+	NoCopy = opNoCopy{}
+	NoDrop = opNoDrop{}
+	NoSwap = opNoSwap{}
+	//Eq = opEq{}
+	//Neq = opNeq{}
+	//Tag = opTag{}
 }

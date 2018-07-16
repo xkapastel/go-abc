@@ -23,43 +23,35 @@ import (
 	"io"
 )
 
-type opSwap struct{}
+type opNeq struct{}
 
-func (block opSwap) Box() Block { return &mkBox{block} }
-func (block opSwap) Cat(xs ...Block) Block {
+func (block opNeq) Box() Block { return &mkBox{block} }
+func (block opNeq) Cat(xs ...Block) Block {
 	rest := newCatN(xs...)
-	return newCat(block, rest)
+	return newCatN(block, rest)
 }
-func (block opSwap) Reduce(quota int) Block { return block }
-func (block opSwap) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(CodeOpSwap)
+func (block opNeq) Reduce(quota int) Block { return block }
+func (block opNeq) Encode(dst io.ByteWriter) error {
+	return dst.WriteByte(CodeOpNeq)
 }
-func (block opSwap) String() string { return "sp" }
-func (lhs opSwap) Eq(rhs Block) bool {
-	_, ok := rhs.(opSwap)
+func (block opNeq) String() string { return "nq" }
+func (lhs opNeq) Eq(rhs Block) bool {
+	_, ok := rhs.(opNeq)
 	return ok
 }
-func (block opSwap) Copy() bool { return true }
-func (block opSwap) Drop() bool { return true }
-func (block opSwap) Swap() bool { return true }
-func (block opSwap) step(ctx *reduce) bool {
+func (block opNeq) Copy() bool { return true }
+func (block opNeq) Drop() bool { return true }
+func (block opNeq) Swap() bool { return true }
+func (block opNeq) step(ctx *reduce) bool {
 	if ctx.arity() < 2 {
 		ctx.clear(block)
 		return false
 	}
-	fst := ctx.peek(0)
-	snd := ctx.peek(1)
-	if !fst.Swap() {
+	lhs := ctx.peek(0)
+	rhs := ctx.peek(1)
+	if lhs.Eq(rhs) {
 		ctx.clear(block)
 		return false
 	}
-	if !snd.Swap() {
-		ctx.clear(block)
-		return false
-	}
-	ctx.pop()
-	ctx.pop()
-	ctx.push(fst)
-	ctx.push(snd)
 	return true
 }

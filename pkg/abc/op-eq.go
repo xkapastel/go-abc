@@ -19,4 +19,39 @@ License along with this program.  If not, see
 
 package abc
 
-import ()
+import (
+	"io"
+)
+
+type opEq struct{}
+
+func (block opEq) Box() Block { return &mkBox{block} }
+func (block opEq) Cat(xs ...Block) Block {
+	rest := newCatN(xs...)
+	return newCatN(block, rest)
+}
+func (block opEq) Reduce(quota int) Block { return block }
+func (block opEq) Encode(dst io.ByteWriter) error {
+	return dst.WriteByte(CodeOpEq)
+}
+func (block opEq) String() string { return "eq" }
+func (lhs opEq) Eq(rhs Block) bool {
+	_, ok := rhs.(opEq)
+	return ok
+}
+func (block opEq) Copy() bool { return true }
+func (block opEq) Drop() bool { return true }
+func (block opEq) Swap() bool { return true }
+func (block opEq) step(ctx *reduce) bool {
+	if ctx.arity() < 2 {
+		ctx.clear(block)
+		return false
+	}
+	lhs := ctx.peek(0)
+	rhs := ctx.peek(1)
+	if !lhs.Eq(rhs) {
+		ctx.clear(block)
+		return false
+	}
+	return true
+}

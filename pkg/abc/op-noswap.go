@@ -34,7 +34,7 @@ func (block opNoSwap) Reduce(quota int) Block { return block }
 func (block opNoSwap) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpNoSwap)
 }
-func (block opNoSwap) String() string { return "noswap" }
+func (block opNoSwap) String() string { return "ns" }
 func (lhs opNoSwap) Eq(rhs Block) bool {
 	_, ok := rhs.(opNoSwap)
 	return ok

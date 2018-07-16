@@ -34,7 +34,7 @@ func (block opCat) Reduce(quota int) Block { return block }
 func (block opCat) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpCat)
 }
-func (block opCat) String() string { return "cat" }
+func (block opCat) String() string { return "c" }
 func (lhs opCat) Eq(rhs Block) bool {
 	_, ok := rhs.(opCat)
 	return ok

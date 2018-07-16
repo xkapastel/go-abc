@@ -46,6 +46,9 @@ type Block interface {
 	Box() Block
 	// Cat composes many blocks left to right.
 	Cat(...Block) Block
+	// Reduce rewrites a block until it either reaches a normal
+	// form or the effort quota is exhausted.
+	Reduce(int) Block
 	// Eq predicates structurally equivalent blocks.
 	Eq(Block) bool
 	// Copy predicates blocks that can be copied.
@@ -54,9 +57,6 @@ type Block interface {
 	Drop() bool
 	// Swap predicates blocks that can be swapped.
 	Swap() bool
-	// Reduce rewrites a block until it either reaches a normal
-	// form or the effort quota is exhausted.
-	Reduce(int) Block
 	// Encode writes a block to a byte stream.
 	Encode(io.ByteWriter) error
 	// String is a human-readable notation for blocks.
@@ -128,7 +128,7 @@ func init() {
 	NoCopy = opNoCopy{}
 	NoDrop = opNoDrop{}
 	NoSwap = opNoSwap{}
-	//Eq = opEq{}
-	//Neq = opNeq{}
+	Eq = opEq{}
+	Neq = opNeq{}
 	//Tag = opTag{}
 }

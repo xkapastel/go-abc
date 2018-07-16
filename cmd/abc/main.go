@@ -31,8 +31,8 @@ func usage() {
 
 Available commands are:
 
-read    - read a stream of bytecode
-parse   - read a string
+decode  - read a stream of bytecode
+read    - read a string
 reduce  - optimize a block
 reify   - convert a block to a syntax tree
 reflect - convert a syntax tree to a block
@@ -48,18 +48,25 @@ func main() {
 		usage()
 	}
 	switch os.Args[1] {
-	case "read":
+	case "decode":
 		stdin := bufio.NewReader(os.Stdin)
-		block, err := abc.DecodeBlock(stdin)
+		block, err := abc.Decode(stdin)
 		if err != nil {
 			panic(err)
 		}
 		fmt.Println(block)
-	case "parse":
-	case "quote":
+	case "read":
+		stdin := bufio.NewReader(os.Stdin)
+		block, err := abc.Read(stdin)
+		if err != nil {
+			panic(err)
+		}
+		stdout := bufio.NewWriter(os.Stdout)
+		block.Encode(stdout)
+		stdout.Flush()
 	case "reduce":
 		stdin := bufio.NewReader(os.Stdin)
-		lhs, err := abc.DecodeBlock(stdin)
+		lhs, err := abc.Decode(stdin)
 		if err != nil {
 			panic(err)
 		}
@@ -68,7 +75,9 @@ func main() {
 		rhs.Encode(stdout)
 		stdout.Flush()
 	case "reify":
+		panic("unimplemented")
 	case "reflect":
+		panic("unimplemented")
 	default:
 		usage()
 	}

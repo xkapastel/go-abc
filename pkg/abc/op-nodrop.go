@@ -34,7 +34,7 @@ func (block opNoDrop) Reduce(quota int) Block { return block }
 func (block opNoDrop) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpNoDrop)
 }
-func (block opNoDrop) String() string { return "nodrop" }
+func (block opNoDrop) String() string { return "nd" }
 func (lhs opNoDrop) Eq(rhs Block) bool {
 	_, ok := rhs.(opNoDrop)
 	return ok

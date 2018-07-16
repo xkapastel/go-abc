@@ -31,7 +31,7 @@ func (block opApp) Cat(xs ...Block) Block {
 	return newCat(block, rest)
 }
 func (block opApp) Reduce(quota int) Block { return block }
-func (block opApp) String() string         { return "app" }
+func (block opApp) String() string         { return "a" }
 func (block opApp) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpApp)
 }

@@ -108,22 +108,13 @@ func (lhs *mkCat) Eq(rhs Block) bool {
 	}
 }
 func (block *mkCat) Copy() bool {
-	if block.fst.Copy() {
-		return true
-	}
-	return block.snd.Copy()
+	return block.fst.Copy() && block.snd.Copy()
 }
 func (block *mkCat) Drop() bool {
-	if block.fst.Drop() {
-		return true
-	}
-	return block.snd.Drop()
+	return block.fst.Drop() && block.snd.Drop()
 }
 func (block *mkCat) Swap() bool {
-	if block.fst.Swap() {
-		return true
-	}
-	return block.snd.Swap()
+	return block.fst.Swap() && block.snd.Swap()
 }
 func (block *mkCat) step(ctx *reduce) bool {
 	ctx.queue(block.snd)

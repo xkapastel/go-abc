@@ -34,7 +34,7 @@ func (block opDrop) Reduce(quota int) Block { return block }
 func (block opDrop) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpDrop)
 }
-func (block opDrop) String() string { return "drop" }
+func (block opDrop) String() string { return "dp" }
 func (lhs opDrop) Eq(rhs Block) bool {
 	_, ok := rhs.(opDrop)
 	return ok
@@ -45,6 +45,7 @@ func (block opDrop) Swap() bool { return true }
 func (block opDrop) step(ctx *reduce) bool {
 	if ctx.arity() == 0 {
 		ctx.clear(block)
+		return false
 	}
 	lhs := ctx.peek(0)
 	if !lhs.Drop() {

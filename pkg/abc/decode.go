@@ -41,8 +41,8 @@ const (
 	CodeEnd
 )
 
-// DecodeBlock reads a block from a stream of bytecode.
-func DecodeBlock(src io.ByteReader) (Block, error) {
+// Decode creates a block from a stream of bytecode.
+func Decode(src io.ByteReader) (Block, error) {
 	var dead uint
 	var build []Block
 	var stack [][]Block

@@ -69,8 +69,8 @@ func (ctx *reduce) Block() Block {
 	ctx.work.Each(func(block Block) {
 		buf = append(buf, block)
 	})
-	work := newCatNFlip(buf...)
+	work := NewCatR(buf...)
 	data := ctx.data.Block()
 	kill := ctx.kill.Block()
-	return kill.Cat(work, data)
+	return NewCat(kill, work, data)
 }

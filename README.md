@@ -1,12 +1,11 @@
 # ABC
 ABC is a virtual machine for functional programs, integrating modern
-research in to programming languages and artificial intelligence.
+research in programming languages and artificial intelligence.
 
 ## Contents
 - [Installation](#installation)
 - [Hypermedia](#hypermedia)
 - [Rewriting](#rewriting)
-- [Editing](#editing)
 - [Analysis](#analysis)
 - [Synthesis](#synthesis)
 - [Examples](#examples)
@@ -20,7 +19,6 @@ research in to programming languages and artificial intelligence.
 ABC bytecode is hyperlinked, based on a content-addressing scheme.
 
 ## Rewriting
-### Programs
 ```
    P = app    | box    | cat
      | copy   | drop   | swap

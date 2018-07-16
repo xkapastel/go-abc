@@ -59,6 +59,9 @@ func readFile(name string) (Block, error) {
 	return block, err
 }
 
+// Read creates a block from a string. Free variables are resolved
+// using files in the current directory, and cyclic definitions are
+// not allowed.
 func Read(src io.Reader) (Block, error) {
 	buf, err := ioutil.ReadAll(src)
 	if err != nil {
@@ -80,8 +83,8 @@ func Read(src io.Reader) (Block, error) {
 			if len(stack) == 0 {
 				return nil, fmt.Errorf("Unbalanced block")
 			}
-			body := newCatN(build...)
-			wrap := body.Box()
+			body := NewCat(build...)
+			wrap := NewBox(body)
 			build = stack[len(stack)-1]
 			build = append(build, wrap)
 			stack = stack[:len(stack)-1]
@@ -126,5 +129,5 @@ func Read(src io.Reader) (Block, error) {
 	if len(stack) != 0 {
 		return nil, fmt.Errorf("Unbalanced block")
 	}
-	return newCatN(build...), nil
+	return NewCat(build...), nil
 }

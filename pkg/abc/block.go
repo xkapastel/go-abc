@@ -42,10 +42,6 @@ import (
 // scheme. A block may refer to another block by its SHA-256 hash.
 // This allows compression and an easy opportunity for acceleration.
 type Block interface {
-	// Box wraps a block in another pair of brackets.
-	Box() Block
-	// Cat composes many blocks left to right.
-	Cat(...Block) Block
 	// Reduce rewrites a block until it either reaches a normal
 	// form or the effort quota is exhausted.
 	Reduce(int) Block

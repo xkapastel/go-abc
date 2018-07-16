@@ -25,11 +25,6 @@ import (
 
 type opCat struct{}
 
-func (block opCat) Box() Block { return &mkBox{block} }
-func (block opCat) Cat(xs ...Block) Block {
-	rest := newCatN(xs...)
-	return newCat(block, rest)
-}
 func (block opCat) Reduce(quota int) Block { return block }
 func (block opCat) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpCat)
@@ -60,7 +55,8 @@ func (block opCat) step(ctx *reduce) bool {
 	}
 	ctx.pop()
 	ctx.pop()
-	cat := lhs.body.Cat(rhs.body).Box()
-	ctx.push(cat)
+	cat := NewCat(lhs.body, rhs.body)
+	box := NewBox(cat)
+	ctx.push(box)
 	return true
 }

@@ -25,11 +25,6 @@ import (
 
 type opDrop struct{}
 
-func (block opDrop) Box() Block { return &mkBox{block} }
-func (block opDrop) Cat(xs ...Block) Block {
-	rest := newCatN(xs...)
-	return newCatN(block, rest)
-}
 func (block opDrop) Reduce(quota int) Block { return block }
 func (block opDrop) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpDrop)

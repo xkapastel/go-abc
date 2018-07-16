@@ -25,11 +25,6 @@ import (
 
 type opNeq struct{}
 
-func (block opNeq) Box() Block { return &mkBox{block} }
-func (block opNeq) Cat(xs ...Block) Block {
-	rest := newCatN(xs...)
-	return newCatN(block, rest)
-}
 func (block opNeq) Reduce(quota int) Block { return block }
 func (block opNeq) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpNeq)

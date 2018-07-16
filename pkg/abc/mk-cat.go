@@ -44,7 +44,9 @@ func newCat(fst, snd Block) Block {
 		return &mkCat{fst, snd}
 	}
 }
-func newCatN(xs ...Block) Block {
+
+// NewCat catenates the given blocks.
+func NewCat(xs ...Block) Block {
 	if len(xs) == 1 {
 		return xs[0]
 	}
@@ -55,17 +57,14 @@ func newCatN(xs ...Block) Block {
 	}
 	return block
 }
-func newCatNFlip(xs ...Block) Block {
+
+// NewCatR catenates the given blocks in reverse.
+func NewCatR(xs ...Block) Block {
 	var block Block = opId{}
 	for _, child := range xs {
 		block = newCat(child, block)
 	}
 	return block
-}
-func (block *mkCat) Box() Block { return &mkBox{block} }
-func (block *mkCat) Cat(xs ...Block) Block {
-	rest := newCatN(xs...)
-	return newCat(block, rest)
 }
 func (block *mkCat) Reduce(quota int) Block {
 	ctx := newReduce(block)

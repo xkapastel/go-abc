@@ -25,11 +25,6 @@ import (
 
 type opApp struct{}
 
-func (block opApp) Box() Block { return &mkBox{block} }
-func (block opApp) Cat(xs ...Block) Block {
-	rest := newCatN(xs...)
-	return newCat(block, rest)
-}
 func (block opApp) Reduce(quota int) Block { return block }
 func (block opApp) String() string         { return "a" }
 func (block opApp) Encode(dst io.ByteWriter) error {

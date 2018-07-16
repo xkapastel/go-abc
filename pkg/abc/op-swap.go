@@ -25,11 +25,6 @@ import (
 
 type opSwap struct{}
 
-func (block opSwap) Box() Block { return &mkBox{block} }
-func (block opSwap) Cat(xs ...Block) Block {
-	rest := newCatN(xs...)
-	return newCat(block, rest)
-}
 func (block opSwap) Reduce(quota int) Block { return block }
 func (block opSwap) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpSwap)

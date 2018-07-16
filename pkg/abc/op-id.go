@@ -25,11 +25,6 @@ import (
 
 type opId struct{}
 
-func (block opId) Box() Block { return &mkBox{block} }
-func (block opId) Cat(xs ...Block) Block {
-	rest := newCatN(xs...)
-	return newCat(block, rest)
-}
 func (block opId) Reduce(quota int) Block         { return block }
 func (block opId) Encode(dst io.ByteWriter) error { return nil }
 func (block opId) String() string                 { return "" }

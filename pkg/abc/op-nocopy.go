@@ -25,11 +25,6 @@ import (
 
 type opNoCopy struct{}
 
-func (block opNoCopy) Box() Block { return &mkBox{block} }
-func (block opNoCopy) Cat(xs ...Block) Block {
-	rest := newCatN(xs...)
-	return newCat(block, rest)
-}
 func (block opNoCopy) Reduce(quota int) Block { return block }
 func (block opNoCopy) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpNoCopy)

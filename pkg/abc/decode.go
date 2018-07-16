@@ -50,7 +50,7 @@ func Decode(src io.ByteReader) (Block, error) {
 		code, err := src.ReadByte()
 		switch {
 		case err == io.EOF:
-			return newCatN(build...), nil
+			return NewCat(build...), nil
 		case err != nil:
 			return nil, err
 		case code == CodeBegin:
@@ -61,8 +61,8 @@ func Decode(src io.ByteReader) (Block, error) {
 				dead++
 				continue
 			}
-			body := newCatN(build...)
-			wrap := body.Box()
+			body := NewCat(build...)
+			wrap := NewBox(body)
 			build = stack[len(stack)-1]
 			build = append(build, wrap)
 			stack = stack[:len(stack)-1]

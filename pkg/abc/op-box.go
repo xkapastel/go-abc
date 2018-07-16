@@ -25,11 +25,6 @@ import (
 
 type opBox struct{}
 
-func (block opBox) Box() Block { return &mkBox{block} }
-func (block opBox) Cat(xs ...Block) Block {
-	rest := newCatN(xs...)
-	return newCat(block, rest)
-}
 func (block opBox) Reduce(quota int) Block { return block }
 func (block opBox) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpBox)
@@ -48,7 +43,7 @@ func (block opBox) step(ctx *reduce) bool {
 		return false
 	}
 	lhs := ctx.pop()
-	rhs := lhs.Box()
+	rhs := NewBox(lhs)
 	ctx.push(rhs)
 	return true
 }

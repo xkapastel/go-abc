@@ -29,11 +29,6 @@ type opLink struct {
 	value []byte
 }
 
-func (block opLink) Box() Block { return &mkBox{block} }
-func (block opLink) Cat(xs ...Block) Block {
-	rest := newCatN(xs...)
-	return newCat(block, rest)
-}
 func (block opLink) Reduce(quota int) Block { return block }
 func (block opLink) Encode(dst io.ByteWriter) error {
 	if err := dst.WriteByte(CodeOpLink); err != nil {

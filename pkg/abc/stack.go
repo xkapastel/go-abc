@@ -46,7 +46,7 @@ func (ctx *stack) Clear() {
 }
 func (ctx *stack) Len() int { return len(ctx.data) }
 func (ctx *stack) Block() Block {
-	return newCatN(ctx.data...)
+	return NewCat(ctx.data...)
 }
 func (ctx *stack) Each(fn func(Block)) {
 	for _, value := range ctx.data {

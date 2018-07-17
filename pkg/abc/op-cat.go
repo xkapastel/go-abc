@@ -29,7 +29,7 @@ func (block opCat) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpCat)
 }
 func (block opCat) String() string { return "c" }
-func (lhs opCat) Eq(rhs Block) bool {
+func (lhs opCat) eq(rhs Block) bool {
 	_, ok := rhs.(opCat)
 	return ok
 }

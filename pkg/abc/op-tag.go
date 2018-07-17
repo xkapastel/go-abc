@@ -29,7 +29,7 @@ func (block opTag) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpTag)
 }
 func (block opTag) String() string { return "t" }
-func (lhs opTag) Eq(rhs Block) bool {
+func (lhs opTag) eq(rhs Block) bool {
 	_, ok := rhs.(opTag)
 	return ok
 }

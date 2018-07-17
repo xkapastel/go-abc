@@ -44,7 +44,7 @@ func (block opLink) String() string {
 	name := hex.EncodeToString(block.value)
 	return fmt.Sprintf("#%s", name)
 }
-func (lhs opLink) Eq(rhs Block) bool {
+func (lhs opLink) eq(rhs Block) bool {
 	_, ok := rhs.(opLink)
 	return ok
 }

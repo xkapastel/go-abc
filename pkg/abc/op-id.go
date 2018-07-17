@@ -27,7 +27,7 @@ type opId struct{}
 
 func (block opId) Encode(dst io.ByteWriter) error { return nil }
 func (block opId) String() string                 { return "" }
-func (lhs opId) Eq(rhs Block) bool {
+func (lhs opId) eq(rhs Block) bool {
 	_, ok := rhs.(opId)
 	return ok
 }

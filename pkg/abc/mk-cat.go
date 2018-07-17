@@ -86,11 +86,11 @@ func (block *mkCat) String() string {
 	snd := block.snd.String()
 	return fmt.Sprintf("%s %s", fst, snd)
 }
-func (lhs *mkCat) Eq(rhs Block) bool {
+func (lhs *mkCat) eq(rhs Block) bool {
 	switch rhs := rhs.(type) {
 	case *mkCat:
-		if lhs.fst.Eq(rhs.fst) {
-			return lhs.snd.Eq(rhs.snd)
+		if lhs.fst.eq(rhs.fst) {
+			return lhs.snd.eq(rhs.snd)
 		}
 		return false
 	default:

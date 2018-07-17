@@ -42,8 +42,6 @@ import (
 // scheme. A block may refer to another block by its SHA-256 hash.
 // This allows compression and an easy opportunity for acceleration.
 type Block interface {
-	// Eq predicates structurally equivalent blocks.
-	Eq(Block) bool
 	// Copy predicates blocks that can be copied.
 	Copy() bool
 	// Drop predicates blocks that can be dropped.
@@ -57,6 +55,8 @@ type Block interface {
 	// step attempts to perform a rewrite, returning whether or not
 	// any work was actually done.
 	step(*reduce) bool
+	// eq predicates structurally equivalent blocks.
+	eq(Block) bool
 }
 
 // Id is the identity and does nothing. It's represented by
@@ -126,4 +126,9 @@ func init() {
 	Eq = opEq{}
 	Neq = opNeq{}
 	Tag = opTag{}
+}
+
+// Equals predicates structurally equivalent blocks.
+func Equals(fst, snd Block) bool {
+	return fst.eq(snd)
 }

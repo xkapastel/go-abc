@@ -29,7 +29,7 @@ func (block opNoCopy) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpNoCopy)
 }
 func (block opNoCopy) String() string { return "nc" }
-func (lhs opNoCopy) Eq(rhs Block) bool {
+func (lhs opNoCopy) eq(rhs Block) bool {
 	_, ok := rhs.(opNoCopy)
 	return ok
 }

@@ -29,7 +29,7 @@ func (block opNeq) Encode(dst io.ByteWriter) error {
 	return dst.WriteByte(CodeOpNeq)
 }
 func (block opNeq) String() string { return "nq" }
-func (lhs opNeq) Eq(rhs Block) bool {
+func (lhs opNeq) eq(rhs Block) bool {
 	_, ok := rhs.(opNeq)
 	return ok
 }
@@ -43,7 +43,7 @@ func (block opNeq) step(ctx *reduce) bool {
 	}
 	lhs := ctx.peek(0)
 	rhs := ctx.peek(1)
-	if lhs.Eq(rhs) {
+	if lhs.eq(rhs) {
 		ctx.clear(block)
 		return false
 	}

@@ -41,10 +41,10 @@ func (block *mkBox) String() string {
 	body := block.body.String()
 	return fmt.Sprintf("[%s]", body)
 }
-func (lhs *mkBox) Eq(rhs Block) bool {
+func (lhs *mkBox) eq(rhs Block) bool {
 	switch rhs := rhs.(type) {
 	case *mkBox:
-		return lhs.body.Eq(rhs.body)
+		return lhs.body.eq(rhs.body)
 	default:
 		return false
 	}

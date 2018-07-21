@@ -30,25 +30,25 @@ func newStack() *stack {
 		data: make([]Block, 0),
 	}
 }
-func (ctx *stack) Push(block Block) {
+func (ctx *stack) push(block Block) {
 	ctx.data = append(ctx.data, block)
 }
-func (ctx *stack) Peek(index int) Block {
+func (ctx *stack) peek(index int) Block {
 	return ctx.data[len(ctx.data)-1-index]
 }
-func (ctx *stack) Pop() Block {
+func (ctx *stack) pop() Block {
 	block := ctx.data[len(ctx.data)-1]
 	ctx.data = ctx.data[:len(ctx.data)-1]
 	return block
 }
-func (ctx *stack) Clear() {
+func (ctx *stack) clear() {
 	ctx.data = nil
 }
-func (ctx *stack) Len() int { return len(ctx.data) }
+func (ctx *stack) len() int { return len(ctx.data) }
 func (ctx *stack) Block() Block {
 	return NewCat(ctx.data...)
 }
-func (ctx *stack) Each(fn func(Block)) {
+func (ctx *stack) each(fn func(Block)) {
 	for _, value := range ctx.data {
 		fn(value)
 	}

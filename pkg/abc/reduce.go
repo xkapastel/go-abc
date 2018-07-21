@@ -49,7 +49,7 @@ type reduce struct {
 
 func newReduce(init Block) *reduce {
 	work := newStack()
-	work.Push(init)
+	work.push(init)
 	return &reduce{
 		kill: newStack(),
 		data: newStack(),
@@ -57,42 +57,42 @@ func newReduce(init Block) *reduce {
 		tags: newStack(),
 	}
 }
-func (ctx *reduce) arity() int { return ctx.data.Len() }
+func (ctx *reduce) arity() int { return ctx.data.len() }
 func (ctx *reduce) push(block Block) {
-	ctx.data.Push(block)
+	ctx.data.push(block)
 }
 func (ctx *reduce) peek(index int) Block {
-	return ctx.data.Peek(index)
+	return ctx.data.peek(index)
 }
 func (ctx *reduce) pop() Block {
-	return ctx.data.Pop()
+	return ctx.data.pop()
 }
 func (ctx *reduce) queue(block Block) {
-	ctx.work.Push(block)
+	ctx.work.push(block)
 }
 func (ctx *reduce) clear(block Block) {
-	ctx.data.Each(ctx.kill.Push)
-	ctx.kill.Push(block)
-	ctx.data.Clear()
+	ctx.data.each(ctx.kill.push)
+	ctx.kill.push(block)
+	ctx.data.clear()
 }
 func (ctx *reduce) stash(block Block) {
-	ctx.kill.Push(block)
+	ctx.kill.push(block)
 }
 func (ctx *reduce) tag(block Block) {
-	ctx.tags.Push(block)
+	ctx.tags.push(block)
 }
 func (ctx *reduce) step() bool {
-	for ctx.work.Len() > 0 {
-		block := ctx.work.Pop()
+	for ctx.work.len() > 0 {
+		block := ctx.work.pop()
 		if block.step(ctx) {
 			break
 		}
 	}
-	return ctx.work.Len() > 0
+	return ctx.work.len() > 0
 }
 func (ctx *reduce) Block() Block {
 	var buf []Block
-	ctx.work.Each(func(block Block) {
+	ctx.work.each(func(block Block) {
 		buf = append(buf, block)
 	})
 	work := NewCatR(buf...)

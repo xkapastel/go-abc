@@ -47,9 +47,6 @@ func newCat(fst, snd Block) Block {
 
 // NewCat catenates the given blocks.
 func NewCat(xs ...Block) Block {
-	if len(xs) == 1 {
-		return xs[0]
-	}
 	var block Block = opId{}
 	for i := len(xs) - 1; i >= 0; i-- {
 		child := xs[i]

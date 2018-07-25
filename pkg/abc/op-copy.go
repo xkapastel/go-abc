@@ -19,16 +19,11 @@ License along with this program.  If not, see
 
 package abc
 
-import (
-	"io"
-)
+import ()
 
 type opCopy struct{}
 
-func (block opCopy) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(CodeOpCopy)
-}
-func (block opCopy) String() string { return "cp" }
+func (block opCopy) String() string { return "%copy" }
 func (lhs opCopy) eq(rhs Block) bool {
 	_, ok := rhs.(opCopy)
 	return ok
@@ -37,15 +32,15 @@ func (block opCopy) Copy() bool { return true }
 func (block opCopy) Drop() bool { return true }
 func (block opCopy) Swap() bool { return true }
 func (block opCopy) step(ctx *reduce) bool {
-	if ctx.arity() == 0 {
+	if ctx.data.len() == 0 {
 		ctx.clear(block)
 		return false
 	}
-	lhs := ctx.peek(0)
+	lhs := ctx.data.peek(0)
 	if !lhs.Copy() {
 		ctx.clear(block)
 		return false
 	}
-	ctx.push(lhs)
+	ctx.data.push(lhs)
 	return true
 }

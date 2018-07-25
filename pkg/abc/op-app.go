@@ -19,16 +19,11 @@ License along with this program.  If not, see
 
 package abc
 
-import (
-	"io"
-)
+import ()
 
 type opApp struct{}
 
-func (block opApp) String() string { return "a" }
-func (block opApp) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(CodeOpApp)
-}
+func (block opApp) String() string { return "%app" }
 func (lhs opApp) eq(rhs Block) bool {
 	_, ok := rhs.(opApp)
 	return ok
@@ -37,16 +32,16 @@ func (block opApp) Copy() bool { return true }
 func (block opApp) Drop() bool { return true }
 func (block opApp) Swap() bool { return true }
 func (block opApp) step(ctx *reduce) bool {
-	if ctx.arity() == 0 {
+	if ctx.data.len() == 0 {
 		ctx.clear(block)
 		return false
 	}
-	fst, ok := ctx.peek(0).(*mkBox)
+	fst, ok := ctx.data.peek(0).(*mkBox)
 	if !ok {
 		ctx.clear(block)
 		return false
 	}
-	ctx.pop()
-	ctx.queue(fst.body)
+	ctx.data.pop()
+	ctx.work.push(fst.body)
 	return true
 }

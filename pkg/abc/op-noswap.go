@@ -19,16 +19,11 @@ License along with this program.  If not, see
 
 package abc
 
-import (
-	"io"
-)
+import ()
 
 type opNoSwap struct{}
 
-func (block opNoSwap) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(CodeOpNoSwap)
-}
-func (block opNoSwap) String() string { return "ns" }
+func (block opNoSwap) String() string { return "%noswap" }
 func (lhs opNoSwap) eq(rhs Block) bool {
 	_, ok := rhs.(opNoSwap)
 	return ok
@@ -37,6 +32,6 @@ func (block opNoSwap) Copy() bool { return true }
 func (block opNoSwap) Drop() bool { return true }
 func (block opNoSwap) Swap() bool { return false }
 func (block opNoSwap) step(ctx *reduce) bool {
-	ctx.stash(block)
+	ctx.kill.push(block)
 	return false
 }

@@ -22,24 +22,12 @@ package abc
 import (
 	"encoding/hex"
 	"fmt"
-	"io"
 )
 
 type opLink struct {
 	value []byte
 }
 
-func (block opLink) Encode(dst io.ByteWriter) error {
-	if err := dst.WriteByte(CodeOpLink); err != nil {
-		return err
-	}
-	for _, value := range block.value {
-		if err := dst.WriteByte(value); err != nil {
-			return err
-		}
-	}
-	return nil
-}
 func (block opLink) String() string {
 	name := hex.EncodeToString(block.value)
 	return fmt.Sprintf("#%s", name)

@@ -19,16 +19,11 @@ License along with this program.  If not, see
 
 package abc
 
-import (
-	"io"
-)
+import ()
 
 type opNoCopy struct{}
 
-func (block opNoCopy) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(CodeOpNoCopy)
-}
-func (block opNoCopy) String() string { return "nc" }
+func (block opNoCopy) String() string { return "%nocopy" }
 func (lhs opNoCopy) eq(rhs Block) bool {
 	_, ok := rhs.(opNoCopy)
 	return ok
@@ -37,6 +32,6 @@ func (block opNoCopy) Copy() bool { return false }
 func (block opNoCopy) Drop() bool { return true }
 func (block opNoCopy) Swap() bool { return true }
 func (block opNoCopy) step(ctx *reduce) bool {
-	ctx.stash(block)
+	ctx.kill.push(block)
 	return false
 }

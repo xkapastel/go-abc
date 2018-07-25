@@ -21,7 +21,6 @@ package abc
 
 import (
 	"fmt"
-	"io"
 )
 
 type mkCat struct{ fst, snd Block }
@@ -63,12 +62,6 @@ func NewCatR(xs ...Block) Block {
 	}
 	return block
 }
-func (block *mkCat) Encode(dst io.ByteWriter) error {
-	if err := block.fst.Encode(dst); err != nil {
-		return err
-	}
-	return block.snd.Encode(dst)
-}
 func (block *mkCat) String() string {
 	var ok bool
 	_, ok = block.fst.(opId)
@@ -104,7 +97,7 @@ func (block *mkCat) Swap() bool {
 	return block.fst.Swap() && block.snd.Swap()
 }
 func (block *mkCat) step(ctx *reduce) bool {
-	ctx.queue(block.snd)
-	ctx.queue(block.fst)
+	ctx.work.push(block.snd)
+	ctx.work.push(block.fst)
 	return false
 }

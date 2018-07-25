@@ -19,12 +19,10 @@ License along with this program.  If not, see
 
 package abc
 
-import (
-	"io"
-)
+import ()
 
 // A block is executable code. ABC is a universal combinator
-// calculus, with twelve primitives:
+// calculus, with eleven primitives:
 //         [A] app    = A
 //         [A] box    = [[A]]
 //     [A] [B] cat    = [A B]
@@ -36,7 +34,6 @@ import (
 //         [A] noswap = noswap [A]
 //     [A] [B] eq     = [A] [B]    if A == B
 //     [A] [B] neq    = [A] [B]    if A != B
-//     [A] [B] tag    = [A] [B]    invoke the runtime with A and B
 //
 // Additionally, code is hyperlinked with a content-based addressing
 // scheme. A block may refer to another block by its SHA-256 hash.
@@ -48,9 +45,7 @@ type Block interface {
 	Drop() bool
 	// Swap predicates blocks that can be swapped.
 	Swap() bool
-	// Encode writes a block to a byte stream.
-	Encode(io.ByteWriter) error
-	// String is a human-readable notation for blocks.
+	// String returns a block's source code.
 	String() string
 	// step attempts to perform a rewrite, returning whether or not
 	// any work was actually done.
@@ -108,10 +103,6 @@ var Eq Block
 //     [A] [B] neq = [A] [B] if A != B
 var Neq Block
 
-// Tag invokes the runtime with two blocks.
-//     [A] [B] tag = [A] [B]
-var Tag Block
-
 func init() {
 	Id = opId{}
 	App = opApp{}
@@ -125,7 +116,6 @@ func init() {
 	NoSwap = opNoSwap{}
 	Eq = opEq{}
 	Neq = opNeq{}
-	Tag = opTag{}
 }
 
 // Equals predicates structurally equivalent blocks.

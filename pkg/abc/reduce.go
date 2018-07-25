@@ -57,29 +57,10 @@ func newReduce(init Block) *reduce {
 		tags: newStack(),
 	}
 }
-func (ctx *reduce) arity() int { return ctx.data.len() }
-func (ctx *reduce) push(block Block) {
-	ctx.data.push(block)
-}
-func (ctx *reduce) peek(index int) Block {
-	return ctx.data.peek(index)
-}
-func (ctx *reduce) pop() Block {
-	return ctx.data.pop()
-}
-func (ctx *reduce) queue(block Block) {
-	ctx.work.push(block)
-}
 func (ctx *reduce) clear(block Block) {
 	ctx.data.each(ctx.kill.push)
 	ctx.kill.push(block)
 	ctx.data.clear()
-}
-func (ctx *reduce) stash(block Block) {
-	ctx.kill.push(block)
-}
-func (ctx *reduce) tag(block Block) {
-	ctx.tags.push(block)
 }
 func (ctx *reduce) step() bool {
 	for ctx.work.len() > 0 {

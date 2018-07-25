@@ -26,59 +26,13 @@ import (
 	"os"
 )
 
-func usage() {
-	fmt.Println(`usage: abc [command]
-
-Available commands are:
-
-decode  : byte -> text = convert bytecode to text
-read    : text -> byte = convert text to bytecode
-reduce  : byte -> byte = rewrite bytecode
-reify   : byte -> byte = convert code to syntax tree
-reflect : byte -> byte = convert syntax tree to code
-`)
-	os.Exit(1)
-}
-
-const prompt = "abc> "
-
 func main() {
 	const defaultQuota = 1000
-	if len(os.Args) != 2 {
-		usage()
+	stdin := bufio.NewReader(os.Stdin)
+	lhs, err := abc.Read(stdin)
+	if err != nil {
+		panic(err)
 	}
-	switch os.Args[1] {
-	case "decode":
-		stdin := bufio.NewReader(os.Stdin)
-		block, err := abc.Decode(stdin)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(block)
-	case "read":
-		stdin := bufio.NewReader(os.Stdin)
-		block, err := abc.Read(stdin)
-		if err != nil {
-			panic(err)
-		}
-		stdout := bufio.NewWriter(os.Stdout)
-		block.Encode(stdout)
-		stdout.Flush()
-	case "reduce":
-		stdin := bufio.NewReader(os.Stdin)
-		lhs, err := abc.Decode(stdin)
-		if err != nil {
-			panic(err)
-		}
-		stdout := bufio.NewWriter(os.Stdout)
-		rhs := abc.Reduce(lhs, defaultQuota)
-		rhs.Encode(stdout)
-		stdout.Flush()
-	case "reify":
-		panic("unimplemented")
-	case "reflect":
-		panic("unimplemented")
-	default:
-		usage()
-	}
+	rhs := abc.Reduce(lhs, defaultQuota)
+	fmt.Println(rhs)
 }

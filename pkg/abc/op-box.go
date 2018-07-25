@@ -19,16 +19,11 @@ License along with this program.  If not, see
 
 package abc
 
-import (
-	"io"
-)
+import ()
 
 type opBox struct{}
 
-func (block opBox) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(CodeOpBox)
-}
-func (block opBox) String() string { return "b" }
+func (block opBox) String() string { return "%box" }
 func (lhs opBox) eq(rhs Block) bool {
 	_, ok := rhs.(opBox)
 	return ok
@@ -37,12 +32,12 @@ func (block opBox) Copy() bool { return true }
 func (block opBox) Drop() bool { return true }
 func (block opBox) Swap() bool { return true }
 func (block opBox) step(ctx *reduce) bool {
-	if ctx.arity() == 0 {
+	if ctx.data.len() == 0 {
 		ctx.clear(block)
 		return false
 	}
-	lhs := ctx.pop()
+	lhs := ctx.data.pop()
 	rhs := NewBox(lhs)
-	ctx.push(rhs)
+	ctx.data.push(rhs)
 	return true
 }

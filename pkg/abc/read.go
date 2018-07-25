@@ -25,6 +25,7 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -72,6 +73,7 @@ func Read(src io.Reader) (Block, error) {
 	text = strings.Replace(text, "]", " ]", -1)
 	words := strings.Split(text, " ")
 	ident := regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9-]+$")
+	num := regexp.MustCompile("^(([-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?))$")
 	var build []Block
 	var stack [][]Block
 	for _, word := range words {
@@ -88,32 +90,37 @@ func Read(src io.Reader) (Block, error) {
 			build = stack[len(stack)-1]
 			build = append(build, wrap)
 			stack = stack[:len(stack)-1]
-		case word == "a":
+		case word == "%app":
 			build = append(build, App)
-		case word == "b":
+		case word == "%box":
 			build = append(build, Box)
-		case word == "c":
+		case word == "%cat":
 			build = append(build, Cat)
-		case word == "cp":
+		case word == "%copy":
 			build = append(build, Copy)
-		case word == "dp":
+		case word == "%drop":
 			build = append(build, Drop)
-		case word == "sp":
+		case word == "%swap":
 			build = append(build, Swap)
-		case word == "nc":
+		case word == "%nocopy":
 			build = append(build, NoCopy)
-		case word == "nd":
+		case word == "%nodrop":
 			build = append(build, NoDrop)
-		case word == "ns":
+		case word == "%noswap":
 			build = append(build, NoSwap)
-		case word == "eq":
+		case word == "%eq":
 			build = append(build, Eq)
-		case word == "nq":
+		case word == "%neq":
 			build = append(build, Neq)
-		case word == "t":
-			build = append(build, Tag)
 		case len(word) == 0:
 			continue
+		case num.MatchString(word):
+			value, err := strconv.ParseFloat(word, 64)
+			if err != nil {
+				return nil, err
+			}
+			block := NewNum(value)
+			build = append(build, block)
 		case len(word) <= 2:
 			msg := "`%s`: words of length <= 2 are reserved"
 			err := fmt.Errorf(msg, word)

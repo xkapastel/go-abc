@@ -19,16 +19,11 @@ License along with this program.  If not, see
 
 package abc
 
-import (
-	"io"
-)
+import ()
 
 type opEq struct{}
 
-func (block opEq) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(CodeOpEq)
-}
-func (block opEq) String() string { return "eq" }
+func (block opEq) String() string { return "%eq" }
 func (lhs opEq) eq(rhs Block) bool {
 	_, ok := rhs.(opEq)
 	return ok
@@ -37,12 +32,12 @@ func (block opEq) Copy() bool { return true }
 func (block opEq) Drop() bool { return true }
 func (block opEq) Swap() bool { return true }
 func (block opEq) step(ctx *reduce) bool {
-	if ctx.arity() < 2 {
+	if ctx.data.len() < 2 {
 		ctx.clear(block)
 		return false
 	}
-	lhs := ctx.peek(0)
-	rhs := ctx.peek(1)
+	lhs := ctx.data.peek(0)
+	rhs := ctx.data.peek(1)
 	if !lhs.eq(rhs) {
 		ctx.clear(block)
 		return false

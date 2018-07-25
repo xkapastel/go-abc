@@ -20,26 +20,27 @@ License along with this program.  If not, see
 package abc
 
 import (
-	"io"
+	"fmt"
 )
 
-type opTag struct{}
+type mkNum struct{ value float64 }
 
-func (block opTag) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(CodeOpTag)
+func NewNum(value float64) Block { return mkNum{value} }
+func (block mkNum) String() string {
+	return fmt.Sprintf("%.10g", block.value)
 }
-func (block opTag) String() string { return "t" }
-func (lhs opTag) eq(rhs Block) bool {
-	_, ok := rhs.(opTag)
-	return ok
+func (block mkNum) Copy() bool { return true }
+func (block mkNum) Drop() bool { return true }
+func (block mkNum) Swap() bool { return true }
+func (lhs mkNum) eq(rhs Block) bool {
+	switch rhs := rhs.(type) {
+	case mkNum:
+		return lhs.value == rhs.value
+	default:
+		return false
+	}
 }
-func (block opTag) Copy() bool { return true }
-func (block opTag) Drop() bool { return true }
-func (block opTag) Swap() bool { return true }
-func (block opTag) step(ctx *reduce) bool {
-	rhs := ctx.peek(0)
-	lhs := ctx.peek(1)
-	tag := NewBox(NewCat(lhs, rhs))
-	ctx.tag(tag)
+func (block mkNum) step(ctx *reduce) bool {
+	ctx.data.push(block)
 	return false
 }

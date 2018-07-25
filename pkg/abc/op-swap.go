@@ -19,16 +19,11 @@ License along with this program.  If not, see
 
 package abc
 
-import (
-	"io"
-)
+import ()
 
 type opSwap struct{}
 
-func (block opSwap) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(CodeOpSwap)
-}
-func (block opSwap) String() string { return "sp" }
+func (block opSwap) String() string { return "%swap" }
 func (lhs opSwap) eq(rhs Block) bool {
 	_, ok := rhs.(opSwap)
 	return ok
@@ -37,12 +32,12 @@ func (block opSwap) Copy() bool { return true }
 func (block opSwap) Drop() bool { return true }
 func (block opSwap) Swap() bool { return true }
 func (block opSwap) step(ctx *reduce) bool {
-	if ctx.arity() < 2 {
+	if ctx.data.len() < 2 {
 		ctx.clear(block)
 		return false
 	}
-	fst := ctx.peek(0)
-	snd := ctx.peek(1)
+	fst := ctx.data.peek(0)
+	snd := ctx.data.peek(1)
 	if !fst.Swap() {
 		ctx.clear(block)
 		return false
@@ -51,9 +46,9 @@ func (block opSwap) step(ctx *reduce) bool {
 		ctx.clear(block)
 		return false
 	}
-	ctx.pop()
-	ctx.pop()
-	ctx.push(fst)
-	ctx.push(snd)
+	ctx.data.pop()
+	ctx.data.pop()
+	ctx.data.push(fst)
+	ctx.data.push(snd)
 	return true
 }

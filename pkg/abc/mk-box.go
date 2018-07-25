@@ -21,22 +21,12 @@ package abc
 
 import (
 	"fmt"
-	"io"
 )
 
 type mkBox struct{ body Block }
 
 // NewBox wraps the given block in a box.
 func NewBox(block Block) Block { return &mkBox{block} }
-func (block *mkBox) Encode(dst io.ByteWriter) error {
-	if err := dst.WriteByte(CodeBegin); err != nil {
-		return err
-	}
-	if err := block.body.Encode(dst); err != nil {
-		return err
-	}
-	return dst.WriteByte(CodeEnd)
-}
 func (block *mkBox) String() string {
 	body := block.body.String()
 	return fmt.Sprintf("[%s]", body)
@@ -53,6 +43,6 @@ func (block *mkBox) Copy() bool { return block.body.Copy() }
 func (block *mkBox) Drop() bool { return block.body.Drop() }
 func (block *mkBox) Swap() bool { return block.body.Swap() }
 func (block *mkBox) step(ctx *reduce) bool {
-	ctx.push(block)
+	ctx.data.push(block)
 	return false
 }

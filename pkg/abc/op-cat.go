@@ -19,16 +19,11 @@ License along with this program.  If not, see
 
 package abc
 
-import (
-	"io"
-)
+import ()
 
 type opCat struct{}
 
-func (block opCat) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(CodeOpCat)
-}
-func (block opCat) String() string { return "c" }
+func (block opCat) String() string { return "%cat" }
 func (lhs opCat) eq(rhs Block) bool {
 	_, ok := rhs.(opCat)
 	return ok
@@ -37,25 +32,25 @@ func (block opCat) Copy() bool { return true }
 func (block opCat) Drop() bool { return true }
 func (block opCat) Swap() bool { return true }
 func (block opCat) step(ctx *reduce) bool {
-	if ctx.arity() < 2 {
+	if ctx.data.len() < 2 {
 		ctx.clear(block)
 		return false
 	}
 	var ok bool
-	rhs, ok := ctx.peek(0).(*mkBox)
+	rhs, ok := ctx.data.peek(0).(*mkBox)
 	if !ok {
 		ctx.clear(block)
 		return false
 	}
-	lhs, ok := ctx.peek(1).(*mkBox)
+	lhs, ok := ctx.data.peek(1).(*mkBox)
 	if !ok {
 		ctx.clear(block)
 		return false
 	}
-	ctx.pop()
-	ctx.pop()
+	ctx.data.pop()
+	ctx.data.pop()
 	cat := NewCat(lhs.body, rhs.body)
 	box := NewBox(cat)
-	ctx.push(box)
+	ctx.data.push(box)
 	return true
 }

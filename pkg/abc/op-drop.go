@@ -19,16 +19,11 @@ License along with this program.  If not, see
 
 package abc
 
-import (
-	"io"
-)
+import ()
 
 type opDrop struct{}
 
-func (block opDrop) Encode(dst io.ByteWriter) error {
-	return dst.WriteByte(CodeOpDrop)
-}
-func (block opDrop) String() string { return "dp" }
+func (block opDrop) String() string { return "%drop" }
 func (lhs opDrop) eq(rhs Block) bool {
 	_, ok := rhs.(opDrop)
 	return ok
@@ -37,15 +32,15 @@ func (block opDrop) Copy() bool { return true }
 func (block opDrop) Drop() bool { return true }
 func (block opDrop) Swap() bool { return true }
 func (block opDrop) step(ctx *reduce) bool {
-	if ctx.arity() == 0 {
+	if ctx.data.len() == 0 {
 		ctx.clear(block)
 		return false
 	}
-	lhs := ctx.peek(0)
+	lhs := ctx.data.peek(0)
 	if !lhs.Drop() {
 		ctx.clear(block)
 		return false
 	}
-	ctx.pop()
+	ctx.data.pop()
 	return true
 }

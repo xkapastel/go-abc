@@ -28,19 +28,12 @@ func (lhs opCopy) eq(rhs Block) bool {
 	_, ok := rhs.(opCopy)
 	return ok
 }
-func (block opCopy) Copy() bool { return true }
-func (block opCopy) Drop() bool { return true }
-func (block opCopy) Swap() bool { return true }
 func (block opCopy) step(ctx *reduce) bool {
 	if ctx.data.len() == 0 {
 		ctx.clear(block)
 		return false
 	}
 	lhs := ctx.data.peek(0)
-	if !lhs.Copy() {
-		ctx.clear(block)
-		return false
-	}
 	ctx.data.push(lhs)
 	return true
 }

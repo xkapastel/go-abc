@@ -36,9 +36,6 @@ func (lhs opLink) eq(rhs Block) bool {
 	_, ok := rhs.(opLink)
 	return ok
 }
-func (block opLink) Copy() bool { return true }
-func (block opLink) Drop() bool { return true }
-func (block opLink) Swap() bool { return true }
 func (block opLink) step(ctx *reduce) bool {
 	ctx.clear(block)
 	return false

@@ -28,9 +28,6 @@ func (lhs opCat) eq(rhs Block) bool {
 	_, ok := rhs.(opCat)
 	return ok
 }
-func (block opCat) Copy() bool { return true }
-func (block opCat) Drop() bool { return true }
-func (block opCat) Swap() bool { return true }
 func (block opCat) step(ctx *reduce) bool {
 	if ctx.data.len() < 2 {
 		ctx.clear(block)

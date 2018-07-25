@@ -25,13 +25,11 @@ import (
 
 type mkNum struct{ value float64 }
 
+// NewNum creates a new real number.
 func NewNum(value float64) Block { return mkNum{value} }
 func (block mkNum) String() string {
 	return fmt.Sprintf("%.10g", block.value)
 }
-func (block mkNum) Copy() bool { return true }
-func (block mkNum) Drop() bool { return true }
-func (block mkNum) Swap() bool { return true }
 func (lhs mkNum) eq(rhs Block) bool {
 	switch rhs := rhs.(type) {
 	case mkNum:

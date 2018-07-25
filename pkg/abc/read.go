@@ -71,9 +71,12 @@ func Read(src io.Reader) (Block, error) {
 	text := string(buf)
 	text = strings.Replace(text, "[", "[ ", -1)
 	text = strings.Replace(text, "]", " ]", -1)
+	text = strings.Replace(text, "\t", " ", -1)
+	text = strings.Replace(text, "\r", " ", -1)
+	text = strings.Replace(text, "\n", " ", -1)
 	words := strings.Split(text, " ")
-	ident := regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9-]+$")
 	num := regexp.MustCompile("^(([-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?))$")
+	ident := regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9-]+$")
 	var build []Block
 	var stack [][]Block
 	for _, word := range words {
@@ -102,16 +105,6 @@ func Read(src io.Reader) (Block, error) {
 			build = append(build, Drop)
 		case word == "%swap":
 			build = append(build, Swap)
-		case word == "%nocopy":
-			build = append(build, NoCopy)
-		case word == "%nodrop":
-			build = append(build, NoDrop)
-		case word == "%noswap":
-			build = append(build, NoSwap)
-		case word == "%eq":
-			build = append(build, Eq)
-		case word == "%neq":
-			build = append(build, Neq)
 		case len(word) == 0:
 			continue
 		case num.MatchString(word):
@@ -126,10 +119,7 @@ func Read(src io.Reader) (Block, error) {
 			err := fmt.Errorf(msg, word)
 			return nil, err
 		case ident.MatchString(word):
-			block, err := readFile(word)
-			if err != nil {
-				return nil, err
-			}
+			block := NewVar(word)
 			build = append(build, block)
 		}
 	}

@@ -21,26 +21,27 @@ package abc
 
 import ()
 
-type opNeq struct{}
+type mkVar struct{ name string }
 
-func (block opNeq) String() string { return "%neq" }
-func (lhs opNeq) eq(rhs Block) bool {
-	_, ok := rhs.(opNeq)
-	return ok
+// NewVar creates a new free variable.
+func NewVar(name string) Block { return mkVar{name} }
+func (block mkVar) String() string {
+	return block.name
 }
-func (block opNeq) Copy() bool { return true }
-func (block opNeq) Drop() bool { return true }
-func (block opNeq) Swap() bool { return true }
-func (block opNeq) step(ctx *reduce) bool {
-	if ctx.data.len() < 2 {
+func (lhs mkVar) eq(rhs Block) bool {
+	switch rhs := rhs.(type) {
+	case mkVar:
+		return lhs.name == rhs.name
+	default:
+		return false
+	}
+}
+func (block mkVar) step(ctx *reduce) bool {
+	body, err := readFile(block.name)
+	if err != nil {
 		ctx.clear(block)
 		return false
 	}
-	lhs := ctx.data.peek(0)
-	rhs := ctx.data.peek(1)
-	if lhs.eq(rhs) {
-		ctx.clear(block)
-		return false
-	}
+	ctx.work.push(body)
 	return true
 }

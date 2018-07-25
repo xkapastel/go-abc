@@ -28,26 +28,13 @@ func (lhs opSwap) eq(rhs Block) bool {
 	_, ok := rhs.(opSwap)
 	return ok
 }
-func (block opSwap) Copy() bool { return true }
-func (block opSwap) Drop() bool { return true }
-func (block opSwap) Swap() bool { return true }
 func (block opSwap) step(ctx *reduce) bool {
 	if ctx.data.len() < 2 {
 		ctx.clear(block)
 		return false
 	}
-	fst := ctx.data.peek(0)
-	snd := ctx.data.peek(1)
-	if !fst.Swap() {
-		ctx.clear(block)
-		return false
-	}
-	if !snd.Swap() {
-		ctx.clear(block)
-		return false
-	}
-	ctx.data.pop()
-	ctx.data.pop()
+	fst := ctx.data.pop()
+	snd := ctx.data.pop()
 	ctx.data.push(fst)
 	ctx.data.push(snd)
 	return true

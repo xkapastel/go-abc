@@ -39,9 +39,6 @@ func (lhs *mkBox) eq(rhs Block) bool {
 		return false
 	}
 }
-func (block *mkBox) Copy() bool { return block.body.Copy() }
-func (block *mkBox) Drop() bool { return block.body.Drop() }
-func (block *mkBox) Swap() bool { return block.body.Swap() }
 func (block *mkBox) step(ctx *reduce) bool {
 	ctx.data.push(block)
 	return false

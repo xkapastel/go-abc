@@ -20,28 +20,19 @@ ABC bytecode is hyperlinked, based on a content-addressing scheme.
 
 ## Rewriting
 ```
-   P = app    | box    | cat
-     | copy   | drop   | swap
-     | nocopy | nodrop | noswap
-     | eq     | neq
-     | [P]    | P P
+    P = app  | box  | cat
+      | copy | drop | swap
+      | [P]  | P P
 
          [A] app = A
          [A] box = [[A]]
      [A] [B] cat = [A B]
-        [A] copy = [A] [A]    if A does not contain nocopy
-        [A] drop =            if A does not contain nodrop
-    [A] [B] swap = [B] [A]    if A and B do not contain noswap
-      [A] nocopy = nocopy [A]
-      [A] nodrop = nodrop [A]
-      [A] noswap = noswap [A]
-      [A] [B] eq = [A] [B]    if A == B
-     [A] [B] neq = [A] [B]    if A != B
+        [A] copy = [A] [A]
+        [A] drop =
+    [A] [B] swap = [B] [A]
 ```
 
 ## Analysis
-### Tags and Types
-### Accelerators
 
 ## Synthesis
 

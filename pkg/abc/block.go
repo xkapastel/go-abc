@@ -22,29 +22,19 @@ package abc
 import ()
 
 // A block is executable code. ABC is a universal combinator
-// calculus, with eleven primitives:
+// calculus, with six primitives:
+//
 //         [A] app    = A
 //         [A] box    = [[A]]
 //     [A] [B] cat    = [A B]
-//         [A] copy   = [A] [A]    if A does not contain nocopy
-//         [A] drop   =            if A does not contain nodrop
-//     [A] [B] swap   = [B] [A]    if A and B do not contain noswap
-//         [A] nocopy = nocopy [A]
-//         [A] nodrop = nodrop [A]
-//         [A] noswap = noswap [A]
-//     [A] [B] eq     = [A] [B]    if A == B
-//     [A] [B] neq    = [A] [B]    if A != B
+//         [A] copy   = [A] [A]
+//         [A] drop   =
+//     [A] [B] swap   = [B] [A]
 //
 // Additionally, code is hyperlinked with a content-based addressing
 // scheme. A block may refer to another block by its SHA-256 hash.
 // This allows compression and an easy opportunity for acceleration.
 type Block interface {
-	// Copy predicates blocks that can be copied.
-	Copy() bool
-	// Drop predicates blocks that can be dropped.
-	Drop() bool
-	// Swap predicates blocks that can be swapped.
-	Swap() bool
 	// String returns a block's source code.
 	String() string
 	// step attempts to perform a rewrite, returning whether or not
@@ -72,36 +62,16 @@ var Box Block
 var Cat Block
 
 // Copy duplicates a block of code.
-//     [A] copy = [A] [A] if A does not contain nocopy
+//     [A] copy = [A] [A]
 var Copy Block
 
 // Drop erases a block of code.
-//     [A] drop =     if A does not contain nodrop
+//     [A] drop =
 var Drop Block
 
 // Swap exchanges two blocks of code.
-//     [A] [B] swap = [B] [A] if A and B do not contain noswap
+//     [A] [B] swap = [B] [A]
 var Swap Block
-
-// NoCopy marks blocks containing it as affine.
-//     [A] nocopy = nocopy [A]
-var NoCopy Block
-
-// NoDrop marks blocks containing it as relevant.
-//     [A] nodrop = nodrop [A]
-var NoDrop Block
-
-// NoSwap marks blocks containing it as ordered.
-//     [A] noswap = noswap [A]
-var NoSwap Block
-
-// Eq progresses only if two blocks are structurally equivalent.
-//     [A] [B] eq = [A] [B] if A == B
-var Eq Block
-
-// Neq progresses only if two blocks are not structurally equivalent.
-//     [A] [B] neq = [A] [B] if A != B
-var Neq Block
 
 func init() {
 	Id = opId{}
@@ -111,11 +81,6 @@ func init() {
 	Copy = opCopy{}
 	Drop = opDrop{}
 	Swap = opSwap{}
-	NoCopy = opNoCopy{}
-	NoDrop = opNoDrop{}
-	NoSwap = opNoSwap{}
-	Eq = opEq{}
-	Neq = opNeq{}
 }
 
 // Equals predicates structurally equivalent blocks.

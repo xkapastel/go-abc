@@ -28,9 +28,6 @@ func (lhs opBox) eq(rhs Block) bool {
 	_, ok := rhs.(opBox)
 	return ok
 }
-func (block opBox) Copy() bool { return true }
-func (block opBox) Drop() bool { return true }
-func (block opBox) Swap() bool { return true }
 func (block opBox) step(ctx *reduce) bool {
 	if ctx.data.len() == 0 {
 		ctx.clear(block)

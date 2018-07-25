@@ -28,7 +28,4 @@ func (lhs opId) eq(rhs Block) bool {
 	_, ok := rhs.(opId)
 	return ok
 }
-func (block opId) Copy() bool            { return true }
-func (block opId) Drop() bool            { return true }
-func (block opId) Swap() bool            { return true }
 func (block opId) step(ctx *reduce) bool { return false }

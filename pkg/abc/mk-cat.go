@@ -87,15 +87,6 @@ func (lhs *mkCat) eq(rhs Block) bool {
 		return false
 	}
 }
-func (block *mkCat) Copy() bool {
-	return block.fst.Copy() && block.snd.Copy()
-}
-func (block *mkCat) Drop() bool {
-	return block.fst.Drop() && block.snd.Drop()
-}
-func (block *mkCat) Swap() bool {
-	return block.fst.Swap() && block.snd.Swap()
-}
 func (block *mkCat) step(ctx *reduce) bool {
 	ctx.work.push(block.snd)
 	ctx.work.push(block.fst)

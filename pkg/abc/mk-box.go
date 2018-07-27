@@ -23,15 +23,14 @@ import (
 	"fmt"
 )
 
-type mkBox struct{ body Block }
+type mkBox struct{ body Object }
 
-// NewBox wraps the given block in a box.
-func NewBox(block Block) Block { return &mkBox{block} }
-func (block *mkBox) String() string {
-	body := block.body.String()
+func newBox(object Object) Object { return &mkBox{object} }
+func (object *mkBox) String() string {
+	body := object.body.String()
 	return fmt.Sprintf("[%s]", body)
 }
-func (lhs *mkBox) eq(rhs Block) bool {
+func (lhs *mkBox) eq(rhs Object) bool {
 	switch rhs := rhs.(type) {
 	case *mkBox:
 		return lhs.body.eq(rhs.body)
@@ -39,7 +38,7 @@ func (lhs *mkBox) eq(rhs Block) bool {
 		return false
 	}
 }
-func (block *mkBox) step(ctx *reduce) bool {
-	ctx.data.push(block)
+func (object *mkBox) step(ctx *rewrite) bool {
+	ctx.data.push(object)
 	return false
 }

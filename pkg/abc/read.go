@@ -29,18 +29,18 @@ import (
 	"strings"
 )
 
-var cache map[string]Block
+var cache map[string]Object
 var cycle map[string]bool
 
 func init() {
-	cache = make(map[string]Block)
+	cache = make(map[string]Object)
 	cycle = make(map[string]bool)
 }
 
-func readFile(name string) (Block, error) {
-	block, ok := cache[name]
+func readFile(name string) (Object, error) {
+	object, ok := cache[name]
 	if ok {
-		return block, nil
+		return object, nil
 	}
 	if cycle[name] {
 		msg := "`%s` contains a cycle"
@@ -52,18 +52,18 @@ func readFile(name string) (Block, error) {
 		return nil, err
 	}
 	cycle[name] = true
-	block, err = Read(file)
+	object, err = Read(file)
 	cycle[name] = false
 	if err != nil {
-		cache[name] = block
+		cache[name] = object
 	}
-	return block, err
+	return object, err
 }
 
-// Read creates a block from a string. Free variables are resolved
+// Read creates an object from a string. Free variables are resolved
 // using files in the current directory, and cyclic definitions are
 // not allowed.
-func Read(src io.Reader) (Block, error) {
+func Read(src io.Reader) (Object, error) {
 	buf, err := ioutil.ReadAll(src)
 	if err != nil {
 		return nil, err
@@ -77,8 +77,8 @@ func Read(src io.Reader) (Block, error) {
 	words := strings.Split(text, " ")
 	num := regexp.MustCompile("^(([-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?))$")
 	ident := regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9-]+$")
-	var build []Block
-	var stack [][]Block
+	var build []Object
+	var stack [][]Object
 	for _, word := range words {
 		switch {
 		case word == "[":
@@ -88,23 +88,23 @@ func Read(src io.Reader) (Block, error) {
 			if len(stack) == 0 {
 				return nil, fmt.Errorf("Unbalanced block")
 			}
-			body := NewCat(build...)
-			wrap := NewBox(body)
+			body := newCats(build...)
+			wrap := newBox(body)
 			build = stack[len(stack)-1]
 			build = append(build, wrap)
 			stack = stack[:len(stack)-1]
 		case word == "a":
-			build = append(build, App)
+			build = append(build, opApp{})
 		case word == "b":
-			build = append(build, Box)
+			build = append(build, opBox{})
 		case word == "c":
-			build = append(build, Cat)
+			build = append(build, opCat{})
 		case word == "d":
-			build = append(build, Copy)
+			build = append(build, opCopy{})
 		case word == "e":
-			build = append(build, Drop)
+			build = append(build, opDrop{})
 		case word == "f":
-			build = append(build, Swap)
+			build = append(build, opSwap{})
 		case len(word) == 0:
 			continue
 		case num.MatchString(word):
@@ -112,19 +112,19 @@ func Read(src io.Reader) (Block, error) {
 			if err != nil {
 				return nil, err
 			}
-			block := NewNum(value)
-			build = append(build, block)
+			object := newNum(value)
+			build = append(build, object)
 		case len(word) <= 2:
 			msg := "`%s`: words of length <= 2 are reserved"
 			err := fmt.Errorf(msg, word)
 			return nil, err
 		case ident.MatchString(word):
-			block := NewVar(word)
-			build = append(build, block)
+			object := newVar(word)
+			build = append(build, object)
 		}
 	}
 	if len(stack) != 0 {
 		return nil, fmt.Errorf("Unbalanced block")
 	}
-	return NewCat(build...), nil
+	return newCats(build...), nil
 }

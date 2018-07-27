@@ -19,68 +19,54 @@ License along with this program.  If not, see
 
 package abc
 
-// Reduce rewrites a block until it either reaches a normal
+// Rewrite rewrites an object until it either reaches a normal
 // form or the effort quota is exhausted.
-func Reduce(block Block, quota int) Block {
-	ctx := newReduce(block)
+func Rewrite(object Object, quota int) Object {
+	ctx := newRewrite(object)
 	busy := true
 	for busy && quota > 0 {
 		busy = ctx.step()
 		quota--
 	}
-	return ctx.Block()
+	return ctx.Object()
 }
 
-type reduce struct {
+type rewrite struct {
 	kill *stack
 	data *stack
 	work *stack
-	// tags is a bit of a strange but interesting feature
-	// I had the idea for recently. It's adapted from Awelon's
-	// "annotations": parenthesized words with the semantics
-	// of the identity function, that have a kind of benign
-	// effect in the form of communication with the runtime.
-	//
-	// Tags let you annotate the reduction of a program with
-	// blocks, generalizing the strings used in Awelon
-	// annotations and letting us use a more compact bytecode.
-	tags *stack
 }
 
-func newReduce(init Block) *reduce {
+func newRewrite(init Object) *rewrite {
 	work := newStack()
 	work.push(init)
-	return &reduce{
+	return &rewrite{
 		kill: newStack(),
 		data: newStack(),
 		work: work,
-		tags: newStack(),
 	}
 }
-func (ctx *reduce) clear(block Block) {
+func (ctx *rewrite) clear(object Object) {
 	ctx.data.each(ctx.kill.push)
-	ctx.kill.push(block)
+	ctx.kill.push(object)
 	ctx.data.clear()
 }
-func (ctx *reduce) step() bool {
+func (ctx *rewrite) step() bool {
 	for ctx.work.len() > 0 {
-		block := ctx.work.pop()
-		if block.step(ctx) {
+		object := ctx.work.pop()
+		if object.step(ctx) {
 			break
 		}
 	}
 	return ctx.work.len() > 0
 }
-func (ctx *reduce) Block() Block {
-	var buf []Block
-	ctx.work.each(func(block Block) {
-		buf = append(buf, block)
+func (ctx *rewrite) Object() Object {
+	var buf []Object
+	ctx.work.each(func(object Object) {
+		buf = append(buf, object)
 	})
-	work := NewCatR(buf...)
-	data := ctx.data.Block()
-	kill := ctx.kill.Block()
-	return NewCat(kill, work, data)
-}
-func (ctx *reduce) Tags() Block {
-	return ctx.tags.Block()
+	work := newCatsR(buf...)
+	data := ctx.data.Object()
+	kill := ctx.kill.Object()
+	return newCats(kill, work, data)
 }

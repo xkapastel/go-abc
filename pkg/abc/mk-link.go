@@ -28,15 +28,15 @@ type mkLink struct {
 	value []byte
 }
 
-func (block mkLink) String() string {
-	name := hex.EncodeToString(block.value)
+func (object mkLink) String() string {
+	name := hex.EncodeToString(object.value)
 	return fmt.Sprintf("#%s", name)
 }
-func (lhs mkLink) eq(rhs Block) bool {
+func (lhs mkLink) eq(rhs Object) bool {
 	_, ok := rhs.(mkLink)
 	return ok
 }
-func (block mkLink) step(ctx *reduce) bool {
-	ctx.clear(block)
+func (object mkLink) step(ctx *rewrite) bool {
+	ctx.clear(object)
 	return false
 }

@@ -23,12 +23,11 @@ import ()
 
 type mkVar struct{ name string }
 
-// NewVar creates a new free variable.
-func NewVar(name string) Block { return mkVar{name} }
-func (block mkVar) String() string {
-	return block.name
+func newVar(name string) Object { return mkVar{name} }
+func (object mkVar) String() string {
+	return object.name
 }
-func (lhs mkVar) eq(rhs Block) bool {
+func (lhs mkVar) eq(rhs Object) bool {
 	switch rhs := rhs.(type) {
 	case mkVar:
 		return lhs.name == rhs.name
@@ -36,10 +35,10 @@ func (lhs mkVar) eq(rhs Block) bool {
 		return false
 	}
 }
-func (block mkVar) step(ctx *reduce) bool {
-	body, err := readFile(block.name)
+func (object mkVar) step(ctx *rewrite) bool {
+	body, err := readFile(object.name)
 	if err != nil {
-		ctx.clear(block)
+		ctx.clear(object)
 		return false
 	}
 	ctx.work.push(body)

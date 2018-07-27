@@ -22,33 +22,33 @@ package abc
 import ()
 
 type stack struct {
-	data []Block
+	data []Object
 }
 
 func newStack() *stack {
 	return &stack{
-		data: make([]Block, 0),
+		data: make([]Object, 0),
 	}
 }
-func (ctx *stack) push(block Block) {
-	ctx.data = append(ctx.data, block)
+func (ctx *stack) push(object Object) {
+	ctx.data = append(ctx.data, object)
 }
-func (ctx *stack) peek(index int) Block {
+func (ctx *stack) peek(index int) Object {
 	return ctx.data[len(ctx.data)-1-index]
 }
-func (ctx *stack) pop() Block {
-	block := ctx.data[len(ctx.data)-1]
+func (ctx *stack) pop() Object {
+	object := ctx.data[len(ctx.data)-1]
 	ctx.data = ctx.data[:len(ctx.data)-1]
-	return block
+	return object
 }
 func (ctx *stack) clear() {
 	ctx.data = nil
 }
 func (ctx *stack) len() int { return len(ctx.data) }
-func (ctx *stack) Block() Block {
-	return NewCat(ctx.data...)
+func (ctx *stack) Object() Object {
+	return newCats(ctx.data...)
 }
-func (ctx *stack) each(fn func(Block)) {
+func (ctx *stack) each(fn func(Object)) {
 	for _, value := range ctx.data {
 		fn(value)
 	}

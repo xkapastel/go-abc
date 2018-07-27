@@ -23,9 +23,9 @@ import (
 	"fmt"
 )
 
-type mkCat struct{ fst, snd Block }
+type mkCat struct{ fst, snd Object }
 
-func newCat(fst, snd Block) Block {
+func newCat(fst, snd Object) Object {
 	var ok bool
 	_, ok = fst.(opId)
 	if ok {
@@ -44,39 +44,37 @@ func newCat(fst, snd Block) Block {
 	}
 }
 
-// NewCat catenates the given blocks.
-func NewCat(xs ...Block) Block {
-	var block Block = opId{}
+func newCats(xs ...Object) Object {
+	var object Object = opId{}
 	for i := len(xs) - 1; i >= 0; i-- {
 		child := xs[i]
-		block = newCat(child, block)
+		object = newCat(child, object)
 	}
-	return block
+	return object
 }
 
-// NewCatR catenates the given blocks in reverse.
-func NewCatR(xs ...Block) Block {
-	var block Block = opId{}
+func newCatsR(xs ...Object) Object {
+	var object Object = opId{}
 	for _, child := range xs {
-		block = newCat(child, block)
+		object = newCat(child, object)
 	}
-	return block
+	return object
 }
-func (block *mkCat) String() string {
+func (object *mkCat) String() string {
 	var ok bool
-	_, ok = block.fst.(opId)
+	_, ok = object.fst.(opId)
 	if ok {
-		return block.snd.String()
+		return object.snd.String()
 	}
-	_, ok = block.snd.(opId)
+	_, ok = object.snd.(opId)
 	if ok {
-		return block.fst.String()
+		return object.fst.String()
 	}
-	fst := block.fst.String()
-	snd := block.snd.String()
+	fst := object.fst.String()
+	snd := object.snd.String()
 	return fmt.Sprintf("%s %s", fst, snd)
 }
-func (lhs *mkCat) eq(rhs Block) bool {
+func (lhs *mkCat) eq(rhs Object) bool {
 	switch rhs := rhs.(type) {
 	case *mkCat:
 		if lhs.fst.eq(rhs.fst) {
@@ -87,8 +85,8 @@ func (lhs *mkCat) eq(rhs Block) bool {
 		return false
 	}
 }
-func (block *mkCat) step(ctx *reduce) bool {
-	ctx.work.push(block.snd)
-	ctx.work.push(block.fst)
+func (object *mkCat) step(ctx *rewrite) bool {
+	ctx.work.push(object.snd)
+	ctx.work.push(object.fst)
 	return false
 }

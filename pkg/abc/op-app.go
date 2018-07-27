@@ -23,19 +23,19 @@ import ()
 
 type opApp struct{}
 
-func (block opApp) String() string { return "a" }
-func (lhs opApp) eq(rhs Block) bool {
+func (object opApp) String() string { return "a" }
+func (lhs opApp) eq(rhs Object) bool {
 	_, ok := rhs.(opApp)
 	return ok
 }
-func (block opApp) step(ctx *reduce) bool {
+func (object opApp) step(ctx *rewrite) bool {
 	if ctx.data.len() == 0 {
-		ctx.clear(block)
+		ctx.clear(object)
 		return false
 	}
 	fst, ok := ctx.data.peek(0).(*mkBox)
 	if !ok {
-		ctx.clear(block)
+		ctx.clear(object)
 		return false
 	}
 	ctx.data.pop()

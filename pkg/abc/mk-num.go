@@ -25,12 +25,11 @@ import (
 
 type mkNum struct{ value float64 }
 
-// NewNum creates a new real number.
-func NewNum(value float64) Block { return mkNum{value} }
-func (block mkNum) String() string {
-	return fmt.Sprintf("%.10g", block.value)
+func newNum(value float64) Object { return mkNum{value} }
+func (object mkNum) String() string {
+	return fmt.Sprintf("%.10g", object.value)
 }
-func (lhs mkNum) eq(rhs Block) bool {
+func (lhs mkNum) eq(rhs Object) bool {
 	switch rhs := rhs.(type) {
 	case mkNum:
 		return lhs.value == rhs.value
@@ -38,7 +37,7 @@ func (lhs mkNum) eq(rhs Block) bool {
 		return false
 	}
 }
-func (block mkNum) step(ctx *reduce) bool {
-	ctx.data.push(block)
+func (object mkNum) step(ctx *rewrite) bool {
+	ctx.data.push(object)
 	return false
 }

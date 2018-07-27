@@ -23,14 +23,14 @@ import ()
 
 type opSwap struct{}
 
-func (block opSwap) String() string { return "f" }
-func (lhs opSwap) eq(rhs Block) bool {
+func (object opSwap) String() string { return "f" }
+func (lhs opSwap) eq(rhs Object) bool {
 	_, ok := rhs.(opSwap)
 	return ok
 }
-func (block opSwap) step(ctx *reduce) bool {
+func (object opSwap) step(ctx *rewrite) bool {
 	if ctx.data.len() < 2 {
-		ctx.clear(block)
+		ctx.clear(object)
 		return false
 	}
 	fst := ctx.data.pop()

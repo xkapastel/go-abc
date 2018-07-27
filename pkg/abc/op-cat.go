@@ -23,31 +23,31 @@ import ()
 
 type opCat struct{}
 
-func (block opCat) String() string { return "c" }
-func (lhs opCat) eq(rhs Block) bool {
+func (object opCat) String() string { return "c" }
+func (lhs opCat) eq(rhs Object) bool {
 	_, ok := rhs.(opCat)
 	return ok
 }
-func (block opCat) step(ctx *reduce) bool {
+func (object opCat) step(ctx *rewrite) bool {
 	if ctx.data.len() < 2 {
-		ctx.clear(block)
+		ctx.clear(object)
 		return false
 	}
 	var ok bool
 	rhs, ok := ctx.data.peek(0).(*mkBox)
 	if !ok {
-		ctx.clear(block)
+		ctx.clear(object)
 		return false
 	}
 	lhs, ok := ctx.data.peek(1).(*mkBox)
 	if !ok {
-		ctx.clear(block)
+		ctx.clear(object)
 		return false
 	}
 	ctx.data.pop()
 	ctx.data.pop()
-	cat := NewCat(lhs.body, rhs.body)
-	box := NewBox(cat)
+	cat := newCats(lhs.body, rhs.body)
+	box := newBox(cat)
 	ctx.data.push(box)
 	return true
 }

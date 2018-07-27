@@ -23,14 +23,14 @@ import ()
 
 type opDrop struct{}
 
-func (block opDrop) String() string { return "e" }
-func (lhs opDrop) eq(rhs Block) bool {
+func (object opDrop) String() string { return "e" }
+func (lhs opDrop) eq(rhs Object) bool {
 	_, ok := rhs.(opDrop)
 	return ok
 }
-func (block opDrop) step(ctx *reduce) bool {
+func (object opDrop) step(ctx *rewrite) bool {
 	if ctx.data.len() == 0 {
-		ctx.clear(block)
+		ctx.clear(object)
 		return false
 	}
 	ctx.data.pop()

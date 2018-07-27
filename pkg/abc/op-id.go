@@ -23,9 +23,9 @@ import ()
 
 type opId struct{}
 
-func (block opId) String() string { return "" }
-func (lhs opId) eq(rhs Block) bool {
+func (object opId) String() string { return "" }
+func (lhs opId) eq(rhs Object) bool {
 	_, ok := rhs.(opId)
 	return ok
 }
-func (block opId) step(ctx *reduce) bool { return false }
+func (object opId) step(ctx *rewrite) bool { return false }

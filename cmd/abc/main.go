@@ -33,6 +33,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	rhs := abc.Reduce(lhs, defaultQuota)
+	rhs := abc.Rewrite(lhs, defaultQuota)
 	fmt.Println(rhs)
 }

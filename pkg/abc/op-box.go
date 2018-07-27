@@ -23,18 +23,18 @@ import ()
 
 type opBox struct{}
 
-func (block opBox) String() string { return "b" }
-func (lhs opBox) eq(rhs Block) bool {
+func (object opBox) String() string { return "b" }
+func (lhs opBox) eq(rhs Object) bool {
 	_, ok := rhs.(opBox)
 	return ok
 }
-func (block opBox) step(ctx *reduce) bool {
+func (object opBox) step(ctx *rewrite) bool {
 	if ctx.data.len() == 0 {
-		ctx.clear(block)
+		ctx.clear(object)
 		return false
 	}
 	lhs := ctx.data.pop()
-	rhs := NewBox(lhs)
+	rhs := newBox(lhs)
 	ctx.data.push(rhs)
 	return true
 }

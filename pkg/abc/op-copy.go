@@ -23,14 +23,14 @@ import ()
 
 type opCopy struct{}
 
-func (block opCopy) String() string { return "d" }
-func (lhs opCopy) eq(rhs Block) bool {
+func (object opCopy) String() string { return "d" }
+func (lhs opCopy) eq(rhs Object) bool {
 	_, ok := rhs.(opCopy)
 	return ok
 }
-func (block opCopy) step(ctx *reduce) bool {
+func (object opCopy) step(ctx *rewrite) bool {
 	if ctx.data.len() == 0 {
-		ctx.clear(block)
+		ctx.clear(object)
 		return false
 	}
 	lhs := ctx.data.peek(0)

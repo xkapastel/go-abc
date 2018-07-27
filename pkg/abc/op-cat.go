@@ -23,7 +23,7 @@ import ()
 
 type opCat struct{}
 
-func (block opCat) String() string { return "%cat" }
+func (block opCat) String() string { return "c" }
 func (lhs opCat) eq(rhs Block) bool {
 	_, ok := rhs.(opCat)
 	return ok

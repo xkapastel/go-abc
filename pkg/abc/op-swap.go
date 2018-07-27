@@ -23,7 +23,7 @@ import ()
 
 type opSwap struct{}
 
-func (block opSwap) String() string { return "%swap" }
+func (block opSwap) String() string { return "f" }
 func (lhs opSwap) eq(rhs Block) bool {
 	_, ok := rhs.(opSwap)
 	return ok

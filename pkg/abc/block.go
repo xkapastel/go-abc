@@ -36,6 +36,7 @@ import ()
 // This allows compression and an easy opportunity for acceleration.
 type Block interface {
 	// String returns a block's source code.
+	//     Equals(Read(block.String()), block) == true
 	String() string
 	// step attempts to perform a rewrite, returning whether or not
 	// any work was actually done.

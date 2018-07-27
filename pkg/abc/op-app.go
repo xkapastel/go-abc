@@ -23,7 +23,7 @@ import ()
 
 type opApp struct{}
 
-func (block opApp) String() string { return "%app" }
+func (block opApp) String() string { return "a" }
 func (lhs opApp) eq(rhs Block) bool {
 	_, ok := rhs.(opApp)
 	return ok

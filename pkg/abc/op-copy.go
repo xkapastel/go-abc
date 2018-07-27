@@ -23,7 +23,7 @@ import ()
 
 type opCopy struct{}
 
-func (block opCopy) String() string { return "%copy" }
+func (block opCopy) String() string { return "d" }
 func (lhs opCopy) eq(rhs Block) bool {
 	_, ok := rhs.(opCopy)
 	return ok

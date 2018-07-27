@@ -24,19 +24,19 @@ import (
 	"fmt"
 )
 
-type opLink struct {
+type mkLink struct {
 	value []byte
 }
 
-func (block opLink) String() string {
+func (block mkLink) String() string {
 	name := hex.EncodeToString(block.value)
 	return fmt.Sprintf("#%s", name)
 }
-func (lhs opLink) eq(rhs Block) bool {
-	_, ok := rhs.(opLink)
+func (lhs mkLink) eq(rhs Block) bool {
+	_, ok := rhs.(mkLink)
 	return ok
 }
-func (block opLink) step(ctx *reduce) bool {
+func (block mkLink) step(ctx *reduce) bool {
 	ctx.clear(block)
 	return false
 }

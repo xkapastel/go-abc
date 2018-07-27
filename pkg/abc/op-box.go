@@ -23,7 +23,7 @@ import ()
 
 type opBox struct{}
 
-func (block opBox) String() string { return "%box" }
+func (block opBox) String() string { return "b" }
 func (lhs opBox) eq(rhs Block) bool {
 	_, ok := rhs.(opBox)
 	return ok

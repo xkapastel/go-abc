@@ -93,17 +93,17 @@ func Read(src io.Reader) (Block, error) {
 			build = stack[len(stack)-1]
 			build = append(build, wrap)
 			stack = stack[:len(stack)-1]
-		case word == "%app":
+		case word == "a":
 			build = append(build, App)
-		case word == "%box":
+		case word == "b":
 			build = append(build, Box)
-		case word == "%cat":
+		case word == "c":
 			build = append(build, Cat)
-		case word == "%copy":
+		case word == "d":
 			build = append(build, Copy)
-		case word == "%drop":
+		case word == "e":
 			build = append(build, Drop)
-		case word == "%swap":
+		case word == "f":
 			build = append(build, Swap)
 		case len(word) == 0:
 			continue

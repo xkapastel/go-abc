@@ -23,7 +23,7 @@ import ()
 
 type opDrop struct{}
 
-func (block opDrop) String() string { return "%drop" }
+func (block opDrop) String() string { return "e" }
 func (lhs opDrop) eq(rhs Block) bool {
 	_, ok := rhs.(opDrop)
 	return ok

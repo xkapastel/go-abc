@@ -25,7 +25,6 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -71,12 +70,8 @@ func Read(src io.Reader) (Object, error) {
 	text := string(buf)
 	text = strings.Replace(text, "[", "[ ", -1)
 	text = strings.Replace(text, "]", " ]", -1)
-	text = strings.Replace(text, "\t", " ", -1)
-	text = strings.Replace(text, "\r", " ", -1)
-	text = strings.Replace(text, "\n", " ", -1)
 	words := strings.Split(text, " ")
-	num := regexp.MustCompile("^(([-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?))$")
-	ident := regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9-]+$")
+	ident := regexp.MustCompile("^[a-z][a-z0-9-]+$")
 	var build []Object
 	var stack [][]Object
 	for _, word := range words {
@@ -107,15 +102,8 @@ func Read(src io.Reader) (Object, error) {
 			build = append(build, opSwap{})
 		case len(word) == 0:
 			continue
-		case num.MatchString(word):
-			value, err := strconv.ParseFloat(word, 64)
-			if err != nil {
-				return nil, err
-			}
-			object := newNum(value)
-			build = append(build, object)
-		case len(word) <= 2:
-			msg := "`%s`: words of length <= 2 are reserved"
+		case len(word) == 1:
+			msg := "`%s`: words of length 1 are reserved"
 			err := fmt.Errorf(msg, word)
 			return nil, err
 		case ident.MatchString(word):

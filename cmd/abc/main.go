@@ -22,7 +22,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/xkapastel/abc/pkg/abc"
+	"github.com/xkapastel/go-abc/pkg/abc"
 	"os"
 )
 
